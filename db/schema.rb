@@ -10,20 +10,25 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_07_03_185832) do
+ActiveRecord::Schema.define(version: 2020_07_03_204740) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
+  create_table "avents", force: :cascade do |t|
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
   create_table "events", force: :cascade do |t|
-    t.bigint "owner_id", null: false
     t.bigint "itinary_id", null: false
     t.string "participants", array: true
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.bigint "user_id", null: false
     t.index ["itinary_id"], name: "index_events_on_itinary_id"
-    t.index ["owner_id"], name: "index_events_on_owner_id"
     t.index ["participants"], name: "index_events_on_participants", using: :gin
+    t.index ["user_id"], name: "index_events_on_user_id"
   end
 
   create_table "itinaries", force: :cascade do |t|
@@ -56,5 +61,5 @@ ActiveRecord::Schema.define(version: 2020_07_03_185832) do
   end
 
   add_foreign_key "events", "itinaries"
-  add_foreign_key "events", "users", column: "owner_id"
+  add_foreign_key "events", "users"
 end
