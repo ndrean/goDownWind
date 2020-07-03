@@ -10,10 +10,30 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_07_03_172844) do
+ActiveRecord::Schema.define(version: 2020_07_03_185832) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "events", force: :cascade do |t|
+    t.bigint "owner_id", null: false
+    t.bigint "itinary_id", null: false
+    t.string "participants", array: true
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["itinary_id"], name: "index_events_on_itinary_id"
+    t.index ["owner_id"], name: "index_events_on_owner_id"
+    t.index ["participants"], name: "index_events_on_participants", using: :gin
+  end
+
+  create_table "itinaries", force: :cascade do |t|
+    t.datetime "date"
+    t.string "start"
+    t.string "end"
+    t.string "picture"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
 
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
@@ -35,4 +55,6 @@ ActiveRecord::Schema.define(version: 2020_07_03_172844) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "events", "itinaries"
+  add_foreign_key "events", "users", column: "owner_id"
 end

@@ -1,0 +1,2 @@
+class Itinary < ApplicationRecord
+end
