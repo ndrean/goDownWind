@@ -37,7 +37,10 @@
                 </div>
                 <div class="modal-body">
                   <% event.participants.each do |p| %>
-                      <p><%= p %></p>
+                  <div class="row">
+                  <p><%= p %></p>
+                  </div>
+                      
                       <% end %>  
                 </div>
                 <div class="modal-footer">
