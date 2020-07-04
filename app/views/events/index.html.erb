@@ -11,56 +11,65 @@
       <th scope="col">Start</th>
       <th scope="col">End</th>
       <th scope="col"> Kiters</th>
-      <th colspan="3">Actions</th>
+      <th colspan="1">Actions</th>
     </tr>
   </thead>
   <tbody class="content">
       <% @events.each do |event| %>
-      <tr>
+      <tr data-event-id=<%=event.id%>>
       <th scope="row"><%= event.user.email %></td>
       <td><%= event.itinary.date %></td>
       <td><%= event.itinary.start %></td>
       <td><%= event.itinary.end %></td>
-      <%# <td><% event.participants.each do |p| %>
-        <%#= User.find(p).email %>
-        <%# end %>
       <td>
-      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-  show participants
-</button>
-      <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-      <% event.participants.each do |p| %>
-        <p><%= User.find(p).email %></p>
+        <% if event.participants %>
+          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal<%=event.id%>">
+            Show kiters
+          </button>
+          <div class="modal fade" id="exampleModal<%=event.id%>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel<%=event.id%>" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel<%=event.id%>">Event owner: <%=event.user.email%></h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <% event.participants.each do |p| %>
+                      <p><%= p %></p>
+                      <% end %>  
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
         <% end %>
-       
-      </div>
-      <div class="modal-footer">
-        
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
-</div>
       </td>
-        <td><%= link_to 'Show', event %></td>
-        <td><%= link_to 'Edit', edit_event_path(event) %></td>
-        <td><%= link_to 'Destroy', event, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      <td>
+        <%= link_to event, method: :delete, data: { confirm: 'Are you sure?' }, remote: true do %>
+          <i class="fa fa-times-circle fa-2x mt-1" style="color:red" data-toggle="tooltip" data-placement="top" title="Delete"></i>
+        <% end %>
+      </td>
+      <td>
+      <%= link_to edit_event_path(event) do %>
+        <i class="fa fa-bell  fa-1x"  style="color:blue" data-toggle="tooltip" data-placement="top" title="Edit"></i>
+      <% end %>
+      </td>
       </tr>
-    <% end %>
+      <% end %>
   </tbody>
 </table>
 </div>
 
 
 <br>
+<div class="container">
+  <div class="row justify-content-center">
+    <%= link_to 'Create new event', new_event_path, class:"btn btn-success", style:"font-size: 30px; color:white" %>
+      
+  </div>
+</div>
 
-<%= link_to 'New Event', new_event_path %>

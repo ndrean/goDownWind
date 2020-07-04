@@ -5,7 +5,7 @@ class EventsController < ApplicationController
   # GET /events
   # GET /events.json
   def index
-    @events = Event.all
+    @events = Event.includes(:user, :itinary)
   end
 
   
@@ -17,13 +17,15 @@ class EventsController < ApplicationController
     @event = Event.new
     @event.build_itinary
     @event.user = current_user
+    @users = []
+    User.all.each { |u| @users << u.email}
   end
 
   # GET /events/1/edit
   def edit
     @event = Event.find(params[:id])
     
-    @event.user = current.user
+    @event.user = current_user
   end
 
   # POST /events
@@ -34,7 +36,7 @@ class EventsController < ApplicationController
 
     respond_to do |format|
       if @event.save
-        format.html { redirect_to @event, notice: 'event was successfully created.' }
+        format.html { redirect_to :root, notice: 'event was successfully created.' }
         format.json { render :show, status: :created, location: @event }
       else
         format.html { render :new }
@@ -48,7 +50,7 @@ class EventsController < ApplicationController
   def update
     respond_to do |format|
       if @event.update(event_params)
-        format.html { redirect_to @event, notice: 'event was successfully updated.' }
+        format.html { redirect_to :root, notice: 'event was successfully updated.' }
         format.json { render :show, status: :ok, location: @event }
       else
         format.html { render :edit }
@@ -62,6 +64,7 @@ class EventsController < ApplicationController
   def destroy
     @event.destroy
     respond_to do |format|
+      format.js
       format.html { redirect_to events_url, notice: 'event was successfully destroyed.' }
       format.json { head :no_content }
     end
@@ -75,6 +78,6 @@ class EventsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def event_params
-      params.require(:event).permit(:user, itinary_attributes: [:date, :start, :end])
+      params.require(:event).permit(:user, itinary_attributes: [:date, :start, :end],participants:[])
     end
 end

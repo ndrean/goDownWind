@@ -1,17 +1,29 @@
 
+<div class="container">
+
+<div class="row">
+<div class="col">
+
+
 <%= simple_form_for(@event) do |f| %>
   <%= f.error_notification %>
   <%= f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present? %>
   
   <div class="form-inputs">
+  <p>Owner: <%= current_user.email %></p>
+  <%#= f.input :user, input_html: {value: @event.user.email}, label: "Event owner" %>
   <%= f.simple_fields_for :itinary do |ff| %>
     <%= ff.input :date %>
     <%= ff.input :start %>
     <%= ff.input :end %>
   <% end %>
   </div>
-
+  <div class="form-inputs">
+  <h4>Invite buddies</h4>
+    <%= f.input :participants, collection: @users, include_blank: false, input_html: {multiple: true} %>
   <div class="form-actions">
     <%= f.button :submit, class:"btn btn-primary" %>
   </div>
 <% end %>
+
+</div></div></div>
