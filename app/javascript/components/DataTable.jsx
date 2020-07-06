@@ -9,22 +9,30 @@ import { fetchWithToken } from "../packs/fetchWithToken";
 
 const DataTable = () => {
   const [events, setEvents] = React.useState("");
+  const endpoint = "http://localhost:3000/api/v1/events/";
   React.useEffect(() => {
-    fetch("http://localhost:3000/api/v1/events")
+    fetch(endpoint)
       .then((res) => res.json())
       .then((data) => setEvents(data))
       .catch((err) => console.log(err));
   }, []);
 
-  const handleRemove = (event) => {
+  const handleRemove = (e, event) => {
+    e.preventDefault();
     if (confirm("Confirm removal?")) {
       //console.log("remove", event);
       fetchWithToken(`http://localhost:3000/api/v1/events/${event.id}`, {
         method: "DELETE",
       })
         .then((res) => res.json())
-        .then((res) => console.log("remove", res))
-        .catch((err) => console.log(err));
+        .then((res) => console.log(res))
+        // .then(() => {
+        //   fetch(endpoint)
+        //     .then((result) => result.json())
+        //     .then((data) => setEvents(data))
+        //     .catch((err) => console.log("Fetch pb", err));
+        // })
+        .catch((err) => console.log("Error:", err));
     }
   };
   return (
@@ -45,7 +53,7 @@ const DataTable = () => {
               <Row
                 key={event.id}
                 event={event}
-                onhandleRemove={() => handleRemove(event)}
+                onhandleRemove={(e) => handleRemove(e, event)}
               />
             ))}
       </tbody>
