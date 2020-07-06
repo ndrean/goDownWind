@@ -1,0 +1,21 @@
+<h1>Event invitation</h1>
+
+<p> Hi <%= @participant %> </p>
+<p>
+  You are invited to join a downwind event the  <%= @event.itinary.date %>:</p>
+  <ul>
+    <li>from: <%= @event.itinary.start %></li>
+    <li>to: <%= @event.itinary.end %></li>
+  </ul>   
+
+  The participants are:
+<ul>
+  <% if @event.participants %>
+    <% @event.participants.each do |p| %>
+      <li><%= p %></li>
+    <% end %>
+  <% end %>
+</ul>
+
+  Visit us at 
+</p>

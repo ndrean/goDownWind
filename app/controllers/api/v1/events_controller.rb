@@ -1,16 +1,26 @@
-class EventsController < ApplicationController
+class Api::V1::EventsController < ApplicationController
   skip_before_action :authenticate_user!, only: [:index, :search]
   before_action :set_event, only: [:show, :edit, :update, :destroy]
 
   # GET /events
-  # GET /events.json
-  def index
-    @events = Event.includes(:user, :itinary)
+  # cur http://localhost:3000/api/v1/events => ok
+  def index 
+    render json:  Event.includes(:user, :itinary).to_json(
+      include: [
+        user: {only: :email},
+        itinary: {only: [:date, :start, :end]}
+      ]
+    )
   end
 
   
-  # def show
-  # end
+  def show
+    render json: @event.to_json(include: [
+        user: {only: :email},
+        itinary: {only: [:date, :start, :end]}
+      ]
+    )
+  end
 
   
   def new
@@ -79,8 +89,6 @@ class EventsController < ApplicationController
     end
   end
 
-  def hello
-  end
 
   private
     # Use callbacks to share common setup or constraints between actions.

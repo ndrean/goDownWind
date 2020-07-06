@@ -22,15 +22,30 @@ require("channels");
 
 // External imports
 import "bootstrap";
+import React from "react";
+import { render } from "react-dom";
+
 import { invitUser } from "./invitUser.js";
 
+import { DataTable } from "../components/DataTable";
+
+// require("./hello_react");
 // Internal imports, e.g:
 // import { initSelect2 } from '../components/init_select2';
 
 document.addEventListener("turbolinks:load", () => {
-  // Call your functions here, e.g:
-  // initSelect2();
   if (document.querySelector("#invitUser")) {
     invitUser();
+  }
+  const app = document.getElementById("app");
+  if (app) {
+    render(
+      // <>
+      //   <p>React in action</p>
+      //   <br></br>
+      <DataTable></DataTable>,
+      // </>,
+      app
+    );
   }
 });

@@ -1,8 +1,7 @@
 
 <div class="container">
-
-<div class="row">
-<div class="col">
+<div class="row justifiy-content-center">
+<div class="col border-rounded">
 
 
 <%= simple_form_for(@event) do |f| %>
@@ -18,12 +17,13 @@
     <%= ff.input :end %>
   <% end %>
   </div>
-  <div class="form-inputs">
-  <h4>Invite buddies</h4>
-    <%= f.input :participants, collection: @users, include_blank: false, input_html: {multiple: true} %>
-  <div class="form-actions">
-    <%= f.button :submit, class:"btn btn-primary" %>
-  </div>
-<% end %>
+  <h4>Invite / Manage buddies</h4>
 
+  <div class="form-inputs">
+    <%= f.input :participants, collection: @users, include_blank: false, input_html: {multiple: true} %>
+  </div>
+  
+  <%= f.button :submit, class:"btn btn-primary", value:"Send invitations", style:"font-size: 24px" %>
+  
+<% end %>
 </div></div></div>
