@@ -28,6 +28,16 @@ import "bootstrap";
 import React from "react";
 import { render } from "react-dom";
 
+import { library } from "@fortawesome/fontawesome-svg-core";
+import {
+  faTrash,
+  faEdit,
+  faInfoCircle,
+  faPlusSquare,
+  faCheck,
+} from "@fortawesome/free-solid-svg-icons";
+library.add(faTrash, faEdit, faInfoCircle, faPlusSquare, faCheck);
+
 import { invitUser } from "./invitUser.js";
 
 import { DataTable } from "../components/DataTable";

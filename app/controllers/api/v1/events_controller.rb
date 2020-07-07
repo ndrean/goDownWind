@@ -1,5 +1,6 @@
 class Api::V1::EventsController < ApplicationController
-  skip_before_action :authenticate_user!, only: [:index, :search]
+  #skip_before_action :authenticate_user!, only: [:index, :search]
+  #before_action :authenticate_user!
   before_action :set_event, only: [:show, :edit, :update, :destroy]
 
   # GET /events
@@ -29,14 +30,15 @@ class Api::V1::EventsController < ApplicationController
 
   
   def new
-    @event = Event.new
-    @event.build_itinary
-    @event.user = current_user
-    #@users = User.all
+    #if authorized?
+      @event = Event.new
+      @event.build_itinary
+      @event.user = current_user
+    # else
+    #   handle_unauthorized
+    # end
   end
 
-
-  # POST /events
   # POST /events.json
   def create
     @event = Event.new(event_params)
@@ -54,15 +56,19 @@ class Api::V1::EventsController < ApplicationController
         # end
         format.json { render json: { status: :ok} }
       else
-        format.json { render json: @event.errors, status: :unprocessable_entity }
+        format.json { render json: @event.errors.full_messages, status: :unprocessable_entity }
       end
     end
   end
 
   # GET /events/1/edit
   def edit
-    @event = Event.find(params[:id])
-    @event.user = current_user
+    # if authorized?
+      @event = Event.find(params[:id])
+      @event.user = current_user
+    # else
+    #   handle_unauthorized
+    # end
   end
 
   # PATCH/PUT /events/1
@@ -71,10 +77,10 @@ class Api::V1::EventsController < ApplicationController
     respond_to do |format|
       if authorized? && @event.update(event_params)
         #format.html { redirect_to :root, notice: 'event was successfully updated.' }
-        format.json { render :show, status: :ok, location: @event }
+        format.json { render json: {status: :ok} }
       else
         #format.html { render :edit }
-        format.json { render json: @event.errors, status: :unprocessable_entity }
+        format.json { render json: @event.errors.full_messages, status: :unprocessable_entity, notice:"not authorized" }
       end
     end
   end
@@ -100,14 +106,24 @@ class Api::V1::EventsController < ApplicationController
       @event = Event.find(params[:id])
     end
 
-    def authorized?
-      current_user == @event.user
-    end
-
     # Only allow a list of trusted parameters through.
     def event_params
       params.require(:event).permit(:user, itinary_attributes: [:date, :start, :end], participants:[])#, user_attributes:[:email, :id])
     end
+
+    def authorized?
+      current_user == @event.user
+    end
+
+
+    def handle_unauthorized
+      unless authorized?
+        respond_to do |format|
+          format.json { render :unauthorized, status: 401 }
+        end
+      end
+    end
+
 
     def mail_params
       params.require(:event).permit(user:[:email], itinary:[:date, :start,:end])
