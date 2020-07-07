@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_07_04_163522) do
+ActiveRecord::Schema.define(version: 2020_07_07_170645) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -32,7 +32,7 @@ ActiveRecord::Schema.define(version: 2020_07_04_163522) do
   end
 
   create_table "itinaries", force: :cascade do |t|
-    t.datetime "date"
+    t.date "date"
     t.string "start"
     t.string "end"
     t.string "picture"

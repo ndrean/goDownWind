@@ -87,17 +87,31 @@ const DataTable = () => {
           body: body,
         }
       );
-
       if (queryPost.ok) {
         console.log("ok");
         const query = await fetch(eventsEndPoint);
         const data = await query.json();
         setEvents(data);
         handleClose();
+        setDate("");
+        setStart("");
+        setEnd("");
+        setParticipants("");
       }
     } catch (err) {
       console.log(err);
     }
+  }
+
+  async function handleEdit(e, event) {
+    e.preventDefault();
+    const query = await fetch(eventsEndPoint + event.id);
+    const data = await query.json();
+    setDate(new Date(data.itinary.date).toISOString().slice(0, 10));
+    setStart(data.itinary.start);
+    setEnd(data.itinary.end);
+    setParticipants(data.participants);
+    handleShow();
   }
 
   return (
@@ -111,11 +125,10 @@ const DataTable = () => {
       >
         <thead>
           <tr>
-            <th>Owner</th>
+            <th>Event Owner</th>
             <th>Date</th>
             <th>Starting</th>
-            <th>Details</th>
-            <th colSpan={2}></th>
+            <th colSpan={3}></th>
           </tr>
         </thead>
         <tbody>
@@ -126,10 +139,12 @@ const DataTable = () => {
                   key={event.id}
                   event={event}
                   onhandleRemove={(e) => handleRemove(e, event)}
+                  onhandleEdit={(e) => handleEdit(e, event)}
                 />
               ))}
         </tbody>
       </Table>
+
       <Container>
         <Row style={{ justifyContent: "center" }}>
           <Button
@@ -145,6 +160,7 @@ const DataTable = () => {
               date={date}
               start={start}
               end={end}
+              participants={participants}
               onFormSubmit={handleFormSubmit}
               onDateChange={(e) => setDate(e.target.value)}
               onStartChange={(e) => setStart(e.target.value)}

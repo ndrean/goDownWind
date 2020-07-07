@@ -32,15 +32,9 @@ class Api::V1::EventsController < ApplicationController
     @event = Event.new
     @event.build_itinary
     @event.user = current_user
-    #buid variable @users as the collection of emails for the form
-    @users = User.all
+    #@users = User.all
   end
 
-  # GET /events/1/edit
-  def edit
-    @event = Event.find(params[:id])
-    @event.user = current_user
-  end
 
   # POST /events
   # POST /events.json
@@ -65,15 +59,21 @@ class Api::V1::EventsController < ApplicationController
     end
   end
 
+  # GET /events/1/edit
+  def edit
+    @event = Event.find(params[:id])
+    @event.user = current_user
+  end
+
   # PATCH/PUT /events/1
   # PATCH/PUT /events/1.json
   def update
     respond_to do |format|
       if authorized? && @event.update(event_params)
-        format.html { redirect_to :root, notice: 'event was successfully updated.' }
+        #format.html { redirect_to :root, notice: 'event was successfully updated.' }
         format.json { render :show, status: :ok, location: @event }
       else
-        format.html { render :edit }
+        #format.html { render :edit }
         format.json { render json: @event.errors, status: :unprocessable_entity }
       end
     end

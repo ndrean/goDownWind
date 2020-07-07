@@ -8,7 +8,7 @@ import Button from "react-bootstrap/Button";
 
 import { Details } from "./Details";
 
-const TableRow = ({ event, onhandleRemove }) => {
+const TableRow = ({ event, onhandleRemove, onhandleEdit }) => {
   return (
     <tr key={event.id}>
       <td>{event.user.email}</td>
@@ -18,9 +18,15 @@ const TableRow = ({ event, onhandleRemove }) => {
         <Details event={event} />
       </td>
       <td>
-        <Button onClick={onhandleRemove}>Delete</Button>
+        <Button variant="outline-danger" onClick={onhandleRemove}>
+          Delete
+        </Button>
       </td>
-      <td>Edit</td>
+      <td>
+        <Button variant="outline-primary" onClick={onhandleEdit}>
+          Edit
+        </Button>
+      </td>
     </tr>
   );
 };

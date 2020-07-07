@@ -1,6 +1,7 @@
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
+import Row from "react-bootstrap/Row";
 
 const AddEventForm = (props) => {
   const {
@@ -48,10 +49,15 @@ const AddEventForm = (props) => {
           <Form.Label>Comments</Form.Label>
           <Form.Control as="textarea" rows="3" />
         </Form.Group>
-
-        <Button variant="primary" type="submit">
-          Submit
-        </Button>
+        <Row style={{ justifyContent: "center" }}>
+          <Button
+            variant="outline-primary"
+            type="submit"
+            style={{ fontSize: "24px" }}
+          >
+            Submit
+          </Button>
+        </Row>
       </Form>
     </>
   );

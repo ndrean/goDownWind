@@ -1,6 +1,6 @@
 import React from "react";
-import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
+import Button from "react-bootstrap/Button";
 
 export default function AddEventModal(props) {
   return (
@@ -11,12 +11,12 @@ export default function AddEventModal(props) {
         </Modal.Header>
         <Modal.Body>{props.children}</Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={props.onhandleClose}>
+          <Button variant="outline-secondary" onClick={props.onhandleClose}>
             Close
           </Button>
-          <Button variant="primary" onClick={props.onhandleClose}>
+          {/* <Button disabled variant="primary" onClick={props.onhandleChanges}>
             Save Changes
-          </Button>
+          </Button> */}
         </Modal.Footer>
       </Modal>
     </>

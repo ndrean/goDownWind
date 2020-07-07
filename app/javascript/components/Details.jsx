@@ -8,7 +8,7 @@ const Details = ({ event }) => {
   const handleShow = () => setShow(true);
   return (
     <>
-      <Button variant="primary" onClick={handleShow}>
+      <Button variant="outline-primary" onClick={handleShow}>
         Display
       </Button>
 
@@ -20,6 +20,7 @@ const Details = ({ event }) => {
         </Modal.Header>
         <Modal.Body>
           {event.itinary.date}
+          <hr />
           {!event.participants
             ? null
             : event.participants.map((kiter, idx) => <p key={idx}>{kiter}</p>)}
