@@ -1,5 +1,5 @@
 Rails.application.configure do
-  config.action_mailer.delivery_method = :smtp #:letter_opener
+  config.action_mailer.delivery_method = :letter_opener # :smtp
   config.action_mailer.default_url_options = { host: "http://localhost:3000" }
   # Settings specified here will take precedence over those in config/application.rb.
 
@@ -30,6 +30,8 @@ Rails.application.configure do
     config.cache_store = :null_store
   end
 
+  config.active_job.queue_adapter     = :sidekiq
+  
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
 

@@ -21,6 +21,9 @@ require("channels");
 // ----------------------------------------------------
 
 // External imports
+import JQuery from "jquery";
+window.$ = window.JQuery = JQuery;
+
 import "bootstrap";
 import React from "react";
 import { render } from "react-dom";

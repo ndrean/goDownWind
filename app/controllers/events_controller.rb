@@ -6,6 +6,7 @@ class EventsController < ApplicationController
   # GET /events.json
   def index
     @events = Event.includes(:user, :itinary)
+    
   end
 
   

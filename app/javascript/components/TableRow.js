@@ -4,11 +4,11 @@ import React from "react";
 // import PopoverTitle from "react-bootstrap/PopoverTitle";
 // import OverlayTrigger from "react-bootstrap/Overlay";
 import Button from "react-bootstrap/Button";
-import Modal from "react-bootstrap/Modal";
+// import Modal from "react-bootstrap/Modal";
 
 import { Details } from "./Details";
 
-const Row = ({ event, onhandleRemove }) => {
+const TableRow = ({ event, onhandleRemove }) => {
   return (
     <tr key={event.id}>
       <td>{event.user.email}</td>
@@ -25,4 +25,4 @@ const Row = ({ event, onhandleRemove }) => {
   );
 };
 
-export { Row };
+export default TableRow;

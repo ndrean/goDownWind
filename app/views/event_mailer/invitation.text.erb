@@ -1,14 +1,11 @@
 Event invitation
-<p> Hi <%= @participant%> </p>
-<p>
-  You are invited to join a downwind event, the <%= @event.itinary.date %> from <%= @event.itinary.start %> to <%= @event.itinary.end %>
-</p>
+Hi <%= @participant%>.  You are invited to join a downwind event, the <%= @event.itinary.date %> from <%= @event.itinary.start %> to <%= @event.itinary.end %>
+
 
 The participants are:
-<ul>
+
   <% if @event.participants %>
     <% @event.participants.each do |p| %>
-      <li><%= p %></li>
+      <%= p %>, 
     <% end %>
   <% end %>
-</ul>

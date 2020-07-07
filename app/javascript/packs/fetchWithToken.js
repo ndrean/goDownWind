@@ -8,4 +8,4 @@ const fetchWithToken = (url, options) => {
   return fetch(url, options);
 };
 
-export { fetchWithToken };
+export default fetchWithToken;

@@ -38,8 +38,8 @@ gem 'font-awesome-sass'
 gem 'simple_form'
 gem 'kaminari'
 
-# gem 'fast_jsonapi'
-#gem 'jsonapi-rails'
+gem 'fast_jsonapi'
+
 gem 'sidekiq'
 gem 'sidekiq-failures', '~> 1.0'
 

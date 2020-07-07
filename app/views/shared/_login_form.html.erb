@@ -1,3 +1,4 @@
+
 <div class="modal fade bd-example-modal-lg"tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
@@ -8,7 +9,8 @@
         </button>
       </div>
       <div class="modal-body">
-        <%= simple_form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+      <div class="errors"></div>
+        <%= simple_form_for(resource, as: resource_name, url: session_path(resource_name), remote: true) do |f| %>
           <div class="form-inputs">
             <%= f.input :email,
                 required: false,
@@ -22,8 +24,11 @@
           <div class="modal-footer">
             <%= f.button :submit, "Log in", class: "btn btn-primary" %>
           </div>
+          <%= render "devise/shared/facebook" %>
         <% end %>
       </div>
+      
     </div>
   </div>
+  
 </div>

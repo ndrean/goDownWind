@@ -7,15 +7,20 @@ class Api::V1::EventsController < ApplicationController
   def index 
     render json:  Event.includes(:user, :itinary).to_json(
       include: [
-        user: {only: :email},
+        user: {only: [:email]},
         itinary: {only: [:date, :start, :end]}
       ]
     )
+
+  #   render json: EventSerializer.new(Event.all, {
+  #     include: [:user, :itinary]
+  # })#.serialized_json
   end
 
   
   def show
-    render json: @event.to_json(include: [
+    render json: @event.to_json(
+      include: [
         user: {only: :email},
         itinary: {only: [:date, :start, :end]}
       ]
@@ -28,8 +33,7 @@ class Api::V1::EventsController < ApplicationController
     @event.build_itinary
     @event.user = current_user
     #buid variable @users as the collection of emails for the form
-    @users = []
-    User.all.each { |u| @users << u.email}
+    @users = User.all
   end
 
   # GET /events/1/edit
@@ -41,24 +45,21 @@ class Api::V1::EventsController < ApplicationController
   # POST /events
   # POST /events.json
   def create
-    participants = event_params[:participants]
-    if participants
-      participants.shift
-    end
     @event = Event.new(event_params)
-    @event.participants = participants
     @event.user = current_user
 
     respond_to do |format|
       if @event.save
-        
-        @event.participants.each do |participant|
-          EventMailer.invitation(participant,@event).deliver_now
-        end
-        format.html { redirect_to :root, notice: 'event was successfully created.' }
-        format.json { render :show, status: :created, location: @event }
+        # @event.participants.each do |participant|
+        #   EventMailer.invitation(participant,@event).deliver_now
+        #   # SendInvitationJob.perform_async(
+        #   #   params.require(:event).permit(
+        #   #     :participant,
+        #   #     itinary:[:date, :start, :end])
+        #   # )
+        # end
+        format.json { render json: { status: :ok} }
       else
-        format.html { render :new }
         format.json { render json: @event.errors, status: :unprocessable_entity }
       end
     end
@@ -68,7 +69,7 @@ class Api::V1::EventsController < ApplicationController
   # PATCH/PUT /events/1.json
   def update
     respond_to do |format|
-      if @event.update(event_params)
+      if authorized? && @event.update(event_params)
         format.html { redirect_to :root, notice: 'event was successfully updated.' }
         format.json { render :show, status: :ok, location: @event }
       else
@@ -78,18 +79,19 @@ class Api::V1::EventsController < ApplicationController
     end
   end
 
-  # DELETE /events/1
-  # DELETE /events/1.json
+  
   def destroy
-    if current_user == @event.user 
+    if authorized?
+      #@event.itinary.destroy TO CHECK
       @event.destroy
-    end
-    respond_to do |format|
-      format.js
-      format.html { redirect_to events_url, notice: 'event was successfully destroyed.' }
-      format.json { head :no_content }
+      respond_to do |format|
+        format.json  { render json: {status: :ok} }
+      end 
+    else
+      format.json { render json: {errors: @event.errors.full_messages,   status: :unprocessable_entity } } # status: 422
     end
   end
+
 
 
   private
@@ -98,8 +100,16 @@ class Api::V1::EventsController < ApplicationController
       @event = Event.find(params[:id])
     end
 
+    def authorized?
+      current_user == @event.user
+    end
+
     # Only allow a list of trusted parameters through.
     def event_params
       params.require(:event).permit(:user, itinary_attributes: [:date, :start, :end], participants:[])#, user_attributes:[:email, :id])
+    end
+
+    def mail_params
+      params.require(:event).permit(user:[:email], itinary:[:date, :start,:end])
     end
 end

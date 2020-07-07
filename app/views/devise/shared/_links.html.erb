@@ -1,6 +1,8 @@
 <div class="col-md-6 col-lg-4 border rounded">
 <%- if controller_name != 'sessions' %>
-  <%= link_to "Log in", new_session_path(resource_name) %><br />
+  <%#= link_to "Log in", new_session_path(resource_name) %>
+  <%= link_to 'Log in', "", data:{toggle:"modal", target: ".bd-example-modal-lg"} %>
+  <br />
 <% end %>
 <br>
 <%- if devise_mapping.registerable? && controller_name != 'registrations' %>
