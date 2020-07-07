@@ -2,6 +2,7 @@ import React from "react";
 import Table from "react-bootstrap/Table";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
+import Button from "react-bootstrap/Button";
 
 import TableRow from "./TableRow";
 import AddEventModal from "./AddEventModal";
@@ -18,6 +19,11 @@ const DataTable = () => {
   const [start, setStart] = React.useState("");
   const [end, setEnd] = React.useState("");
   const [participants, setParticipants] = React.useState([]);
+
+  const [show, setShow] = React.useState(false);
+
+  const handleShow = () => setShow(true);
+  const handleClose = () => setShow(false);
 
   const eventsEndPoint = "http://localhost:3000/api/v1/events/";
   const usersEndPoint = "http://localhost:3000/api/v1/users/";
@@ -87,6 +93,7 @@ const DataTable = () => {
         const query = await fetch(eventsEndPoint);
         const data = await query.json();
         setEvents(data);
+        handleClose();
       }
     } catch (err) {
       console.log(err);
@@ -125,7 +132,14 @@ const DataTable = () => {
       </Table>
       <Container>
         <Row style={{ justifyContent: "center" }}>
-          <AddEventModal>
+          <Button
+            variant="primary"
+            onClick={handleShow}
+            style={{ fontSize: "30px" }}
+          >
+            Create an event
+          </Button>
+          <AddEventModal show={show} onhandleClose={handleClose}>
             <AddEventForm
               users={users}
               date={date}
