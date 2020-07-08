@@ -9,33 +9,38 @@ import TableRow from "./TableRow";
 import AddEventModal from "./AddEventModal";
 import AddEventForm from "./AddEventForm";
 
-import fetchWithToken from "../packs/fetchWithToken";
-
-// import { render } from "react-dom";
+// utilitaries for fetch (Rails token with @rails/ujs)
+import fetchWithToken from "../packs/fetchWithToken"; // token for POST, PATCH, DELETE
+import fetchMethod from "../packs/fetchMethod"; // returns data after PATCH or POST depending upon endpoint
+import { eventsEndPoint, usersEndPoint } from "./endpoints"; // const endpoints
 
 const DataTable = () => {
-  const [events, setEvents] = React.useState("");
-  const [users, setUsers] = React.useState([]);
-  const [date, setDate] = React.useState("");
-  const [start, setStart] = React.useState("");
-  const [end, setEnd] = React.useState("");
+  // from db: events= [event:{user, itinary, participants}]
+  const [events, setEvents] = React.useState(""); // fetch from db
+  const [users, setUsers] = React.useState([]); // fetch from db
+  const [itinary, setItinary] = React.useState({
+    date: "",
+    start: "",
+    end: "",
+  });
   const [participants, setParticipants] = React.useState([]);
+
+  // api/v1/events/{indexEdit} to set PATCH or POST if not exist
   const [indexEdit, setIndexEdit] = React.useState(null);
 
+  // to trigger modal opening
   const [show, setShow] = React.useState(false);
 
   const handleShow = () => setShow(true);
+
   const handleClose = () => {
+    // close Modal & reset form
     setShow(false);
-    setDate("");
-    setStart("");
-    setEnd("");
+    setItinary({ date: "", start: "", end: "" });
     setParticipants("");
   };
 
-  const eventsEndPoint = "http://localhost:3000/api/v1/events/";
-  const usersEndPoint = "http://localhost:3000/api/v1/users/";
-
+  // upload db
   React.useEffect(() => {
     fetch(eventsEndPoint)
       .then((res) => res.json())
@@ -61,9 +66,6 @@ const DataTable = () => {
         });
         if (query.ok) {
           setEvents((prev) => [...prev].filter((ev) => ev.id !== event.id));
-          // const events = await fetch("http://localhost:3000/api/v1/events/");
-          // const data = await events.json();
-          // setEvents(data);
         } else {
           throw new Error("unauthorized");
         }
@@ -77,50 +79,20 @@ const DataTable = () => {
     e.preventDefault();
     const body = JSON.stringify({
       event: {
-        itinary_attributes: { date: date, end: end, start: start },
+        itinary_attributes: {
+          date: itinary.date,
+          end: itinary.end,
+          start: itinary.start,
+        },
         participants: participants,
       },
     });
     if (!indexEdit) {
-      try {
-        const queryPost = await fetchWithToken(eventsEndPoint, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: body,
-        });
-        if (queryPost.ok) {
-          console.log("post");
-          const query = await fetch(eventsEndPoint);
-          const data = await query.json();
-          setEvents(data);
-          handleClose();
-        }
-      } catch (err) {
-        console.log(err);
-      }
+      setEvents(await fetchMethod({ method: "POST", index: "", body: body }));
     } else if (indexEdit) {
-      try {
-        const queryPatch = await fetchWithToken(eventsEndPoint + indexEdit, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: body,
-        });
-        if (queryPatch.ok) {
-          console.log("patch");
-          const query = await fetch(eventsEndPoint);
-          const data = await query.json();
-          setEvents(data);
-          handleClose();
-        }
-      } catch (err) {
-        console.log(err);
-      }
+      setEvents(
+        await fetchMethod({ method: "PATCH", index: indexEdit, body: body })
+      );
     }
     setIndexEdit(null);
     handleClose();
@@ -128,15 +100,19 @@ const DataTable = () => {
 
   async function handleEdit(e, event) {
     e.preventDefault();
-    // const query = await fetch(eventsEndPoint + event.id);
-    // const data = await query.json();
+    setIndexEdit(event.id); // get /api/v1/events/ID
     const data = events.find((ev) => ev.id === event.id);
-    setDate(new Date(data.itinary.date).toISOString().slice(0, 10));
-    setStart(data.itinary.start);
-    setEnd(data.itinary.end);
+    setItinary({
+      date: new Date(data.itinary.date).toISOString().slice(0, 10),
+      start: data.itinary.start,
+      end: data.itinary.end,
+    });
     setParticipants(data.participants);
-    setIndexEdit(event.id);
     handleShow();
+  }
+
+  function handleInputsChange(e) {
+    setItinary({ ...itinary, [e.target.name]: e.target.value });
   }
 
   return (
@@ -153,14 +129,12 @@ const DataTable = () => {
           <AddEventModal show={show} onhandleClose={handleClose}>
             <AddEventForm
               users={users}
-              date={date}
-              start={start}
-              end={end}
+              date={itinary.date}
+              start={itinary.start}
+              end={itinary.end}
               participants={participants}
               onFormSubmit={handleFormSubmit}
-              onDateChange={(e) => setDate(e.target.value)}
-              onStartChange={(e) => setStart(e.target.value)}
-              onEndChange={(e) => setEnd(e.target.value)}
+              onhandleInputsChange={handleInputsChange}
               onSelectChange={(e) => {
                 setParticipants(
                   [...e.target.selectedOptions].map((opt) => opt.value)

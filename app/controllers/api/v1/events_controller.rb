@@ -1,5 +1,5 @@
 class Api::V1::EventsController < ApplicationController
-  #skip_before_action :authenticate_user!, only: [:index, :search]
+  skip_before_action :authenticate_user!, only: [:index, :search]
   #before_action :authenticate_user!
   before_action :set_event, only: [:show, :edit, :update, :destroy]
 
@@ -12,7 +12,7 @@ class Api::V1::EventsController < ApplicationController
         itinary: {only: [:date, :start, :end]}
       ]
     )
-
+  # TESTING Netflix serializer
   #   render json: EventSerializer.new(Event.all, {
   #     include: [:user, :itinary]
   # })#.serialized_json
@@ -71,15 +71,12 @@ class Api::V1::EventsController < ApplicationController
     # end
   end
 
-  # PATCH/PUT /events/1
   # PATCH/PUT /events/1.json
   def update
     respond_to do |format|
       if authorized? && @event.update(event_params)
-        #format.html { redirect_to :root, notice: 'event was successfully updated.' }
         format.json { render json: {status: :ok} }
       else
-        #format.html { render :edit }
         format.json { render json: @event.errors.full_messages, status: :unprocessable_entity, notice:"not authorized" }
       end
     end
@@ -99,9 +96,7 @@ class Api::V1::EventsController < ApplicationController
   end
 
 
-
   private
-    # Use callbacks to share common setup or constraints between actions.
     def set_event
       @event = Event.find(params[:id])
     end

@@ -10,9 +10,7 @@ const AddEventForm = (props) => {
     start,
     end,
     onFormSubmit,
-    onDateChange,
-    onStartChange,
-    onEndChange,
+    onhandleInputsChange,
     onSelectChange,
   } = props;
   return (
@@ -20,17 +18,32 @@ const AddEventForm = (props) => {
       <Form onSubmit={onFormSubmit}>
         <Form.Group controlId="ControlDate">
           <Form.Label>Date event</Form.Label>
-          <Form.Control type="date" value={date} onChange={onDateChange} />
+          <Form.Control
+            type="date"
+            value={date}
+            name="date"
+            onChange={onhandleInputsChange}
+          />
         </Form.Group>
 
         <Form.Group controlId="ControlStart">
           <Form.Label>Start place</Form.Label>
-          <Form.Control type="text" value={start} onChange={onStartChange} />
+          <Form.Control
+            type="text"
+            value={start}
+            name="start"
+            onChange={onhandleInputsChange}
+          />
         </Form.Group>
 
         <Form.Group controlId="ControlEnd">
           <Form.Label>End place</Form.Label>
-          <Form.Control type="text" value={end} onChange={onEndChange} />
+          <Form.Control
+            type="text"
+            value={end}
+            name="end"
+            onChange={onhandleInputsChange}
+          />
         </Form.Group>
 
         <Form.Group controlId="ControlKiters">

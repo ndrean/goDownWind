@@ -20,7 +20,7 @@ require("channels");
 // WRITE YOUR OWN JS STARTING FROM HERE 👇
 // ----------------------------------------------------
 
-// External imports
+// External imports for Bootstrap Modal
 import JQuery from "jquery";
 window.$ = window.JQuery = JQuery;
 
@@ -28,6 +28,7 @@ import "bootstrap";
 import React from "react";
 import { render } from "react-dom";
 
+// fontawesome in React with < FontAwesomeIcon icon="trash"/>
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {
   faTrash,
@@ -38,8 +39,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 library.add(faTrash, faEdit, faInfoCircle, faPlusSquare, faCheck);
 
-import { invitUser } from "./invitUser.js";
-
 import { DataTable } from "../components/DataTable";
 
 // require("./hello_react");
@@ -47,18 +46,8 @@ import { DataTable } from "../components/DataTable";
 // import { initSelect2 } from '../components/init_select2';
 
 document.addEventListener("turbolinks:load", () => {
-  if (document.querySelector("#invitUser")) {
-    invitUser();
-  }
   const app = document.getElementById("app");
   if (app) {
-    render(
-      // <>
-      //   <p>React in action</p>
-      //   <br></br>
-      <DataTable></DataTable>,
-      // </>,
-      app
-    );
+    render(<DataTable></DataTable>, app);
   }
 });

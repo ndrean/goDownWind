@@ -1,6 +1,9 @@
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const Details = ({ event }) => {
@@ -25,7 +28,16 @@ const Details = ({ event }) => {
           <hr />
           {!event.participants
             ? null
-            : event.participants.map((kiter, idx) => <p key={idx}>{kiter}</p>)}
+            : event.participants.map((kiter, idx) => (
+                <Container key={idx}>
+                  <Row key={kiter.email}>
+                    <Col xs="8">{kiter}</Col>
+                    <Col xs="4">
+                      Notify? <input type="checkbox" />
+                    </Col>
+                  </Row>
+                </Container>
+              ))}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
