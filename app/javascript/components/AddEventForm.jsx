@@ -10,7 +10,7 @@ const AddEventForm = (props) => {
     start,
     end,
     onFormSubmit,
-    onhandleInputsChange,
+    onhandleItinaryChange,
     onSelectChange,
   } = props;
   return (
@@ -22,7 +22,7 @@ const AddEventForm = (props) => {
             type="date"
             value={date}
             name="date"
-            onChange={onhandleInputsChange}
+            onChange={onhandleItinaryChange}
           />
         </Form.Group>
 
@@ -32,7 +32,7 @@ const AddEventForm = (props) => {
             type="text"
             value={start}
             name="start"
-            onChange={onhandleInputsChange}
+            onChange={onhandleItinaryChange}
           />
         </Form.Group>
 
@@ -42,7 +42,7 @@ const AddEventForm = (props) => {
             type="text"
             value={end}
             name="end"
-            onChange={onhandleInputsChange}
+            onChange={onhandleItinaryChange}
           />
         </Form.Group>
 

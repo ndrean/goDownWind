@@ -28,11 +28,9 @@ const DataTable = () => {
   // api/v1/events/{indexEdit} to set PATCH or POST if not exist
   const [indexEdit, setIndexEdit] = React.useState(null);
 
-  // to trigger modal opening
+  // Modal opened/closed
   const [show, setShow] = React.useState(false);
-
   const handleShow = () => setShow(true);
-
   const handleClose = () => {
     // close Modal & reset form
     setShow(false);
@@ -53,6 +51,7 @@ const DataTable = () => {
       .catch((err) => console.log(err));
   }, []);
 
+  // remove row from table
   const handleRemove = async (e, event) => {
     e.preventDefault();
     if (confirm("Confirm removal?")) {
@@ -75,6 +74,7 @@ const DataTable = () => {
     }
   };
 
+  // POST or PATCH the modal form
   async function handleFormSubmit(e) {
     e.preventDefault();
     const body = JSON.stringify({
@@ -111,7 +111,7 @@ const DataTable = () => {
     handleShow();
   }
 
-  function handleInputsChange(e) {
+  function handleItinaryChange(e) {
     setItinary({ ...itinary, [e.target.name]: e.target.value });
   }
 
@@ -134,7 +134,7 @@ const DataTable = () => {
               end={itinary.end}
               participants={participants}
               onFormSubmit={handleFormSubmit}
-              onhandleInputsChange={handleInputsChange}
+              onhandleItinaryChange={handleItinaryChange}
               onSelectChange={(e) => {
                 setParticipants(
                   [...e.target.selectedOptions].map((opt) => opt.value)
