@@ -103,7 +103,8 @@ class Api::V1::EventsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def event_params
-      params.require(:event).permit(:user, itinary_attributes: [:date, :start, :end], participants:[])#, user_attributes:[:email, :id])
+      #sp_keys = params.require(:event).fetch(:participants,[]).map(&:keys).flatten.uniq
+      params.require(:event).permit(:user, itinary_attributes: [:date, :start, :end], participants: [:email, :notif, :id]) #:participants => sp_keys)#, [:email, :id])
     end
 
     def authorized?

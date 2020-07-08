@@ -2,10 +2,12 @@ import React from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
+import Select from "react-select";
 
 const AddEventForm = (props) => {
   const {
     users,
+    participants,
     date,
     start,
     end,
@@ -13,6 +15,17 @@ const AddEventForm = (props) => {
     onhandleItinaryChange,
     onSelectChange,
   } = props;
+
+  const options = [],
+    defaultOpt = [];
+  users.forEach((u) => options.push({ value: u.email, label: u.email }));
+  if (participants) {
+    participants.forEach((p) =>
+      defaultOpt.push({ value: p.email, label: p.email })
+    );
+  }
+
+  console.log(options, defaultOpt);
   return (
     <>
       <Form onSubmit={onFormSubmit}>
@@ -45,10 +58,26 @@ const AddEventForm = (props) => {
             onChange={onhandleItinaryChange}
           />
         </Form.Group>
-
         <Form.Group controlId="ControlKiters">
+          <Select
+            defaultValue={defaultOpt}
+            isMulti
+            name="participants"
+            options={options}
+            className="basic-multi-select"
+            classNamePrefix="select"
+            onChange={onSelectChange}
+          />
+        </Form.Group>
+
+        {/* <Form.Group controlId="ControlKiters">
           <Form.Label>Invite kiters</Form.Label>
-          <Form.Control as="select" multiple onChange={onSelectChange}>
+          <Form.Control
+            as="select"
+            multiple
+            onChange={onSelectChange}
+            defaultValue={participants}
+          >
             {users.map((user) => {
               return (
                 <option key={user.email} value={user.email}>
@@ -57,7 +86,7 @@ const AddEventForm = (props) => {
               );
             })}
           </Form.Control>
-        </Form.Group>
+        </Form.Group> */}
         <Form.Group controlId="ControlComment">
           <Form.Label>Comments</Form.Label>
           <Form.Control as="textarea" rows="3" />

@@ -16,7 +16,7 @@ import { eventsEndPoint, usersEndPoint } from "./endpoints"; // const endpoints
 
 const DataTable = () => {
   // from db: events= [event:{user, itinary, participants}]
-  const [events, setEvents] = React.useState(""); // fetch from db
+  const [events, setEvents] = React.useState([]); // fetch from db
   const [users, setUsers] = React.useState([]); // fetch from db
   const [itinary, setItinary] = React.useState({
     date: "",
@@ -35,7 +35,7 @@ const DataTable = () => {
     // close Modal & reset form
     setShow(false);
     setItinary({ date: "", start: "", end: "" });
-    setParticipants("");
+    setParticipants([]);
   };
 
   // upload db
@@ -62,7 +62,7 @@ const DataTable = () => {
             "Content-Type": "application/json",
             Accept: "application/json",
           },
-        });
+        }); // then new updated rows
         if (query.ok) {
           setEvents((prev) => [...prev].filter((ev) => ev.id !== event.id));
         } else {
@@ -77,6 +77,10 @@ const DataTable = () => {
   // POST or PATCH the modal form
   async function handleFormSubmit(e) {
     e.preventDefault();
+    const members = participants.map((p) => {
+      return { email: p, notif: false };
+    });
+    console.log(members);
     const body = JSON.stringify({
       event: {
         itinary_attributes: {
@@ -84,9 +88,10 @@ const DataTable = () => {
           end: itinary.end,
           start: itinary.start,
         },
-        participants: participants,
+        participants: members,
       },
     });
+
     if (!indexEdit) {
       setEvents(await fetchMethod({ method: "POST", index: "", body: body }));
     } else if (indexEdit) {
@@ -94,22 +99,38 @@ const DataTable = () => {
         await fetchMethod({ method: "PATCH", index: indexEdit, body: body })
       );
     }
-    setIndexEdit(null);
-    handleClose();
+    setIndexEdit(null); // reset index
+    handleClose(); // close Modal
   }
 
+  // Edit event
   async function handleEdit(e, event) {
     e.preventDefault();
     setIndexEdit(event.id); // get /api/v1/events/ID
     const data = events.find((ev) => ev.id === event.id);
+    //console.log(data);
     setItinary({
       date: new Date(data.itinary.date).toISOString().slice(0, 10),
       start: data.itinary.start,
       end: data.itinary.end,
     });
-    setParticipants(data.participants);
-    handleShow();
+    const kiters = data.participants.map((p) => {
+      return { email: p.email, notif: false };
+    });
+    setParticipants(kiters);
+
+    handleShow(); // open modal-form
   }
+
+  function handleSelectChange(selectedOptions) {
+    if (selectedOptions) {
+      const kiters = [];
+      selectedOptions.forEach((selOpt) => kiters.push(selOpt.value));
+      setParticipants(kiters);
+    }
+  }
+
+  function handleNotifChange() {}
 
   function handleItinaryChange(e) {
     setItinary({ ...itinary, [e.target.name]: e.target.value });
@@ -129,17 +150,16 @@ const DataTable = () => {
           <AddEventModal show={show} onhandleClose={handleClose}>
             <AddEventForm
               users={users}
+              participants={participants}
               date={itinary.date}
               start={itinary.start}
               end={itinary.end}
               participants={participants}
               onFormSubmit={handleFormSubmit}
               onhandleItinaryChange={handleItinaryChange}
-              onSelectChange={(e) => {
-                setParticipants(
-                  [...e.target.selectedOptions].map((opt) => opt.value)
-                );
-              }}
+              onSelectChange={handleSelectChange}
+              // setParticipants(e.target.selectedOptions);
+              // [...e.target.selectedOptions].map((opt) => opt.value));
             />
           </AddEventModal>
         </Row>
@@ -158,7 +178,8 @@ const DataTable = () => {
             <th>Event Owner</th>
             <th>Date</th>
             <th>Starting</th>
-            <th colSpan={3}></th>
+            <th>Notify</th>
+            <th colSpan={2}></th>
           </tr>
         </thead>
         <tbody>
@@ -170,6 +191,7 @@ const DataTable = () => {
                   event={event}
                   onhandleRemove={(e) => handleRemove(e, event)}
                   onhandleEdit={(e) => handleEdit(e, event)}
+                  onhandleNotifChange={handleNotifChange}
                 />
               ))}
         </tbody>

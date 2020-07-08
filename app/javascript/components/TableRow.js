@@ -10,14 +10,24 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { Details } from "./Details";
 
-const TableRow = ({ event, onhandleRemove, onhandleEdit }) => {
+const TableRow = ({
+  event,
+  onhandleRemove,
+  onhandleEdit,
+  notified,
+  onhandleNotifChange,
+}) => {
   return (
     <tr key={event.id}>
       <td>{event.user.email}</td>
       <td>{event.itinary.date}</td>
       <td>{event.itinary.start}</td>
       <td>
-        <Details event={event} />
+        <Details
+          event={event}
+          notified={notified}
+          onhandleNotifChange={onhandleNotifChange}
+        />
       </td>
       <td>
         <Button

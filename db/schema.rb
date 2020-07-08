@@ -10,24 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_07_07_170645) do
+ActiveRecord::Schema.define(version: 2020_07_08_104747) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "avents", force: :cascade do |t|
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-  end
-
   create_table "events", force: :cascade do |t|
     t.bigint "itinary_id", null: false
-    t.string "participants", array: true
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "user_id", null: false
+    t.jsonb "participants"
     t.index ["itinary_id"], name: "index_events_on_itinary_id"
-    t.index ["participants"], name: "index_events_on_participants", using: :gin
     t.index ["user_id"], name: "index_events_on_user_id"
   end
 

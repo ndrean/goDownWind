@@ -4,16 +4,18 @@ import Modal from "react-bootstrap/Modal";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
+import Form from "react-bootstrap/Form";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-const Details = ({ event }) => {
+const Details = ({ event, onhandleNotifChange, notified }) => {
   const [show, setShow] = React.useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
   return (
     <>
       <Button variant="outline-primary" onClick={handleShow}>
-        <FontAwesomeIcon icon="info-circle" size="2x" />
+        <FontAwesomeIcon icon="bell" size="2x" />
       </Button>
 
       <Modal show={show} onHide={handleClose} animation={false}>
@@ -28,12 +30,20 @@ const Details = ({ event }) => {
           <hr />
           {!event.participants
             ? null
-            : event.participants.map((kiter, idx) => (
+            : event.participants.map((participant, idx) => (
                 <Container key={idx}>
-                  <Row key={kiter.email}>
-                    <Col xs="8">{kiter}</Col>
+                  <Row key={participant.id}>
+                    <Col xs="8">{participant.email}</Col>
                     <Col xs="4">
-                      Notify? <input type="checkbox" />
+                      <Form.Group controlId="formBasicCheckbox">
+                        <Form.Check
+                          name="notify"
+                          type="checkbox"
+                          label="Notif?"
+                          checked={notified}
+                          onChange={onhandleNotifChange}
+                        />
+                      </Form.Group>
                     </Col>
                   </Row>
                 </Container>

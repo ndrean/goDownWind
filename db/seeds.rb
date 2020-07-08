@@ -26,6 +26,8 @@ d=Itinary.last.id
 arr_i = Array(c..d)
 
 Array(a..b).each do |idx|
-    Event.create!(user: User.find(idx), itinary: Itinary.find(arr_i.sample), participants: kiters)
+    participants = []
+    kiters.each { |k| participants << {email: k, notif: false}}
+    Event.create!(user: User.find(idx), itinary: Itinary.find(arr_i.sample), participants: participants)
 end
 
