@@ -8,10 +8,17 @@ import Form from "react-bootstrap/Form";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-const Details = ({ event, onhandleNotifChange, notified }) => {
+const Details = ({ event, onhandleNotifChange, onhandleSendNotif }) => {
   const [show, setShow] = React.useState(false);
+
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
+
+  // const handleChange = (e, event, idx) => {
+  //   event.participants[idx].notif = e.target.checked;
+  //   return event;
+  // };
+
   return (
     <>
       <Button variant="outline-primary" onClick={handleShow}>
@@ -37,10 +44,9 @@ const Details = ({ event, onhandleNotifChange, notified }) => {
                     <Col xs="4">
                       <Form.Group controlId="formBasicCheckbox">
                         <Form.Check
-                          name="notify"
+                          name={idx}
                           type="checkbox"
                           label="Notif?"
-                          checked={notified}
                           onChange={onhandleNotifChange}
                         />
                       </Form.Group>
@@ -50,12 +56,12 @@ const Details = ({ event, onhandleNotifChange, notified }) => {
               ))}
         </Modal.Body>
         <Modal.Footer>
+          <Button variant="primary" onClick={onhandleSendNotif}>
+            <FontAwesomeIcon icon="share" /> Send notifications
+          </Button>
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
-          {/* <Button variant="primary" onClick={handleClose}>
-            Save Changes
-          </Button> */}
         </Modal.Footer>
       </Modal>
     </>

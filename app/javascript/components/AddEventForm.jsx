@@ -3,7 +3,7 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 import Select from "react-select";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 const AddEventForm = (props) => {
   const {
     users,
@@ -25,7 +25,6 @@ const AddEventForm = (props) => {
     );
   }
 
-  console.log(options, defaultOpt);
   return (
     <>
       <Form onSubmit={onFormSubmit}>
@@ -87,17 +86,19 @@ const AddEventForm = (props) => {
             })}
           </Form.Control>
         </Form.Group> */}
+
         <Form.Group controlId="ControlComment">
           <Form.Label>Comments</Form.Label>
           <Form.Control as="textarea" rows="3" />
         </Form.Group>
+
         <Row style={{ justifyContent: "center" }}>
           <Button
             variant="outline-primary"
             type="submit"
             style={{ fontSize: "24px" }}
           >
-            Submit
+            <FontAwesomeIcon icon="paper-plane" /> Submit
           </Button>
         </Row>
       </Form>

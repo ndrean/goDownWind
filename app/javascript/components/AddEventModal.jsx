@@ -14,9 +14,6 @@ export default function AddEventModal(props) {
           <Button variant="outline-secondary" onClick={props.onhandleClose}>
             Close
           </Button>
-          {/* <Button disabled variant="primary" onClick={props.onhandleChanges}>
-            Save Changes
-          </Button> */}
         </Modal.Footer>
       </Modal>
     </>

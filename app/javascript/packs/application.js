@@ -37,8 +37,19 @@ import {
   faPlusSquare,
   faCheck,
   faBell,
+  faShare,
+  faPaperPlane,
 } from "@fortawesome/free-solid-svg-icons";
-library.add(faTrash, faEdit, faInfoCircle, faPlusSquare, faCheck, faBell);
+library.add(
+  faTrash,
+  faEdit,
+  faInfoCircle,
+  faPlusSquare,
+  faCheck,
+  faBell,
+  faShare,
+  faPaperPlane
+);
 
 import { DataTable } from "../components/DataTable";
 

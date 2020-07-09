@@ -24,6 +24,7 @@ const DataTable = () => {
     end: "",
   });
   const [participants, setParticipants] = React.useState([]);
+  const [notify, setNotify] = React.useState(false);
 
   // api/v1/events/{indexEdit} to set PATCH or POST if not exist
   const [indexEdit, setIndexEdit] = React.useState(null);
@@ -108,7 +109,6 @@ const DataTable = () => {
     e.preventDefault();
     setIndexEdit(event.id); // get /api/v1/events/ID
     const data = events.find((ev) => ev.id === event.id);
-    //console.log(data);
     setItinary({
       date: new Date(data.itinary.date).toISOString().slice(0, 10),
       start: data.itinary.start,
@@ -130,12 +130,30 @@ const DataTable = () => {
     }
   }
 
-  function handleNotifChange() {}
-
   function handleItinaryChange(e) {
     setItinary({ ...itinary, [e.target.name]: e.target.value });
   }
 
+  function handleNotif(e, event) {
+    event.participants[e.target.name].notif = e.target.checked;
+    let items = [...events];
+    let idx = items.findIndex((item) => item.id === event.id);
+    items[idx] = event;
+    setEvents(items);
+  }
+
+  function handleSend(event) {
+    if (event.participants.find((p) => p.notif)) {
+      const listPush = event.participants
+        .filter((p) => p.notif)
+        .map((p) => p.email);
+      confirm(
+        `Confirm to send notifications for the event ${event.itinary.date}, from ${event.itinary.start} to ${event.itinary.end}. Send to: ${listPush}`
+      );
+    } else {
+      alert("No one to invite!");
+    }
+  }
   return (
     <>
       <Container>
@@ -154,25 +172,16 @@ const DataTable = () => {
               date={itinary.date}
               start={itinary.start}
               end={itinary.end}
-              participants={participants}
               onFormSubmit={handleFormSubmit}
               onhandleItinaryChange={handleItinaryChange}
               onSelectChange={handleSelectChange}
-              // setParticipants(e.target.selectedOptions);
-              // [...e.target.selectedOptions].map((opt) => opt.value));
             />
           </AddEventModal>
         </Row>
       </Container>
       <br />
 
-      <Table
-        bordered
-        size="md"
-        striped
-        responsive="sm"
-        style={{ height: "60vh", overflowY: scroll }}
-      >
+      <Table bordered size="md" striped responsive="sm">
         <thead>
           <tr>
             <th>Event Owner</th>
@@ -191,7 +200,8 @@ const DataTable = () => {
                   event={event}
                   onhandleRemove={(e) => handleRemove(e, event)}
                   onhandleEdit={(e) => handleEdit(e, event)}
-                  onhandleNotifChange={handleNotifChange}
+                  onhandleNotif={(e) => handleNotif(e, event)}
+                  onhandleSend={() => handleSend(event)}
                 />
               ))}
         </tbody>

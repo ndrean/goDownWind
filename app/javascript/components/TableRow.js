@@ -1,12 +1,6 @@
 import React from "react";
-
-// import Popover from "react-bootstrap/Popover";
-// import PopoverContent from "react-bootstrap/PopoverContent";
-// import PopoverTitle from "react-bootstrap/PopoverTitle";
-// import OverlayTrigger from "react-bootstrap/Overlay";
 import Button from "react-bootstrap/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-// import Modal from "react-bootstrap/Modal";
 
 import { Details } from "./Details";
 
@@ -14,8 +8,8 @@ const TableRow = ({
   event,
   onhandleRemove,
   onhandleEdit,
-  notified,
-  onhandleNotifChange,
+  onhandleNotif,
+  onhandleSend,
 }) => {
   return (
     <tr key={event.id}>
@@ -25,8 +19,8 @@ const TableRow = ({
       <td>
         <Details
           event={event}
-          notified={notified}
-          onhandleNotifChange={onhandleNotifChange}
+          onhandleNotifChange={onhandleNotif}
+          onhandleSendNotif={onhandleSend}
         />
       </td>
       <td>
