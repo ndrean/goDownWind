@@ -24,7 +24,8 @@ const DataTable = () => {
     end: "",
   });
   const [participants, setParticipants] = React.useState([]);
-  const [notify, setNotify] = React.useState(false);
+  // const [notify, setNotify] = React.useState(false);
+  //const [values, setValues] = React.useState({ a: 1, b: 2 });
 
   // api/v1/events/{indexEdit} to set PATCH or POST if not exist
   const [indexEdit, setIndexEdit] = React.useState(null);
@@ -39,6 +40,10 @@ const DataTable = () => {
     setParticipants([]);
   };
 
+  const increase = (key) => () => {
+    setValues((values) => ({ ...values, [key]: values[key] + 1 }));
+  };
+
   // upload db
   React.useEffect(() => {
     fetch(eventsEndPoint)
@@ -50,6 +55,9 @@ const DataTable = () => {
       .then((res) => res.json())
       .then((data) => setUsers(data))
       .catch((err) => console.log(err));
+
+    //const c = increase("b");
+    //console.log(c);
   }, []);
 
   // remove row from table

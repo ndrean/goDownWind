@@ -6,13 +6,13 @@ Rails.application.routes.draw do
   
   namespace :api, defaults: { format: :json } do
     namespace :v1 do
-      resources :events
+      resources :events, only: :index
       resources :users, only: :index
     end
   end
 
   root to: 'events#index'
-  resources :events
+  #resources :events
   
   
   #get '/app', to:'events#hello', as: 'app'

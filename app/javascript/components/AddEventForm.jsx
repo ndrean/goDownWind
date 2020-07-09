@@ -16,6 +16,7 @@ const AddEventForm = (props) => {
     onSelectChange,
   } = props;
 
+  // setup SELECT
   const options = [],
     defaultOpt = [];
   users.forEach((u) => options.push({ value: u.email, label: u.email }));
