@@ -1,3 +1,11 @@
+GIT
+  remote: https://github.com/faker-ruby/faker.git
+  revision: cdf2ce209afa2e4dc65e7ccc6066032d641996b9
+  branch: master
+  specs:
+    faker (2.13.0)
+      i18n (>= 1.6, < 2)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -94,8 +102,6 @@ GEM
       railties (>= 3.2, < 6.1)
     erubi (1.9.0)
     execjs (2.7.0)
-    faker (2.13.0)
-      i18n (>= 1.6, < 2)
     faraday (1.0.1)
       multipart-post (>= 1.2, < 3)
     fast_jsonapi (1.5)
@@ -307,7 +313,7 @@ DEPENDENCIES
   capybara (>= 2.15)
   devise
   dotenv-rails
-  faker
+  faker!
   fast_jsonapi
   font-awesome-sass
   jbuilder (~> 2.7)
