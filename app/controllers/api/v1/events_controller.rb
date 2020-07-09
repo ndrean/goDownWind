@@ -85,7 +85,7 @@ class Api::V1::EventsController < ApplicationController
   
   def destroy
     if authorized?
-      #@event.itinary.destroy TO CHECK
+      @event.itinary.destroy
       @event.destroy
       respond_to do |format|
         format.json  { render json: {status: :ok} }
@@ -101,7 +101,6 @@ class Api::V1::EventsController < ApplicationController
       @event = Event.find(params[:id])
     end
 
-    # Only allow a list of trusted parameters through.
     def event_params
       #sp_keys = params.require(:event).fetch(:participants,[]).map(&:keys).flatten.uniq
       params.require(:event).permit(:user, itinary_attributes: [:date, :start, :end], participants: [:email, :notif, :id]) #:participants => sp_keys)#, [:email, :id])

@@ -47,6 +47,7 @@ const Details = ({ event, onhandleNotifChange, onhandleSendNotif }) => {
                           name={idx}
                           type="checkbox"
                           label="Notif?"
+                          checked={participant.notif}
                           onChange={onhandleNotifChange}
                         />
                       </Form.Group>

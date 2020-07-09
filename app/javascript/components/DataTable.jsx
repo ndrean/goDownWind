@@ -75,7 +75,8 @@ const DataTable = () => {
     }
   };
 
-  // POST or PATCH the modal form
+  // POST or PATCH the modal form:
+  // the backend should send a mail on POST to every participant
   async function handleFormSubmit(e) {
     e.preventDefault();
     const members = participants.map((p) => {
@@ -118,7 +119,6 @@ const DataTable = () => {
       return { email: p.email, notif: false };
     });
     setParticipants(kiters);
-
     handleShow(); // open modal-form
   }
 
@@ -134,26 +134,45 @@ const DataTable = () => {
     setItinary({ ...itinary, [e.target.name]: e.target.value });
   }
 
+  // update state & db on notification checkbox per event per participant
   function handleNotif(e, event) {
     event.participants[e.target.name].notif = e.target.checked;
     let items = [...events];
     let idx = items.findIndex((item) => item.id === event.id);
     items[idx] = event;
     setEvents(items);
+    const body = JSON.stringify({
+      event: {
+        itinary_attributes: {
+          date: event.itinary.date,
+          end: event.itinary.end,
+          start: event.itinary.start,
+        },
+        participants: event.participants,
+      },
+    });
+    fetchMethod({ method: "PATCH", index: event.id, body: body });
   }
 
+  // push notification to selected participants on button
   function handleSend(event) {
     if (event.participants.find((p) => p.notif)) {
       const listPush = event.participants
         .filter((p) => p.notif)
         .map((p) => p.email);
-      confirm(
-        `Confirm to send notifications for the event ${event.itinary.date}, from ${event.itinary.start} to ${event.itinary.end}. Send to: ${listPush}`
-      );
+      if (
+        confirm(
+          `Confirm to send notifications for the event ${event.itinary.date}, from ${event.itinary.start} to ${event.itinary.end}. Send to: ${listPush}`
+        )
+      ) {
+        handleClose();
+        console.log("PUSH PUSH");
+      }
     } else {
       alert("No one to invite!");
     }
   }
+
   return (
     <>
       <Container>
