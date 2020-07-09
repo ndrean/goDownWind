@@ -104,8 +104,6 @@ GEM
     execjs (2.7.0)
     faraday (1.0.1)
       multipart-post (>= 1.2, < 3)
-    fast_jsonapi (1.5)
-      activesupport (>= 4.2)
     ffi (1.13.1)
     font-awesome-sass (5.13.0)
       sassc (>= 1.11)
@@ -118,18 +116,6 @@ GEM
     jbuilder (2.10.0)
       activesupport (>= 5.0.0)
     jwt (2.2.1)
-    kaminari (1.2.1)
-      activesupport (>= 4.1.0)
-      kaminari-actionview (= 1.2.1)
-      kaminari-activerecord (= 1.2.1)
-      kaminari-core (= 1.2.1)
-    kaminari-actionview (1.2.1)
-      actionview
-      kaminari-core (= 1.2.1)
-    kaminari-activerecord (1.2.1)
-      activerecord
-      kaminari-core (= 1.2.1)
-    kaminari-core (1.2.1)
     launchy (2.5.0)
       addressable (~> 2.7)
     letter_opener (1.7.0)
@@ -314,10 +300,8 @@ DEPENDENCIES
   devise
   dotenv-rails
   faker!
-  fast_jsonapi
   font-awesome-sass
   jbuilder (~> 2.7)
-  kaminari
   letter_opener
   listen (~> 3.2)
   omniauth-facebook

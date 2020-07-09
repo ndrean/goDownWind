@@ -36,9 +36,9 @@ gem 'rpush'
 gem 'autoprefixer-rails'
 gem 'font-awesome-sass'
 gem 'simple_form'
-gem 'kaminari'
+# gem 'kaminari' # for latter?
 
-gem 'fast_jsonapi'
+# gem 'fast_jsonapi' # tested
 
 gem 'sidekiq'
 gem 'sidekiq-failures', '~> 1.0'

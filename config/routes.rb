@@ -14,6 +14,4 @@ Rails.application.routes.draw do
   root to: 'events#index'
   #resources :events
   
-  
-  #get '/app', to:'events#hello', as: 'app'
 end
