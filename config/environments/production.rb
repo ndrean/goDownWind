@@ -40,6 +40,7 @@ Rails.application.configure do
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :cloudinary
   routes.default_url_options[:host] ="http://godownwind.online"
+  
 
   # Mount Action Cable outside main process or domain.
   # config.action_cable.mount_path = nil
@@ -60,8 +61,8 @@ Rails.application.configure do
   # config.cache_store = :mem_cache_store
 
   # Use a real queuing backend for Active Job (and separate queues per environment).
-  config.active_job.queue_adapter     = :sidekiq
-  # config.active_job.queue_name_prefix = "goDownWind_production"
+  # config.active_job.queue_adapter     = :resque
+  # config.active_job.queue_name_prefix = "go_down_wind_production"
 
   config.action_mailer.perform_caching = false
 

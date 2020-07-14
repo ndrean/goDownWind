@@ -30,13 +30,13 @@ Rails.application.configure do
     config.cache_store = :null_store
   end
 
-
   #config.active_job.queue_adapter  = :sidekiq
-  
   # Store uploaded files on the local file system (see config/storage.yml for options).
-  config.active_storage.service =  :cloudinary#:local 
+  config.active_storage.service = :cloudinary #:local
   config.active_storage.analyzers = false
   routes.default_url_options[:host] = "http://localhost:3000" 
+
+  # Don't care if the mailer can't send.
   config.action_mailer.raise_delivery_errors = false
 
   config.action_mailer.perform_caching = false
@@ -53,7 +53,7 @@ Rails.application.configure do
   # Debug mode disables concatenation and preprocessing of assets.
   # This option may cause significant delays in view rendering with a large
   # number of complex assets.
-  config.assets.debug = false
+  config.assets.debug = true
 
   # Suppress logger output for asset requests.
   config.assets.quiet = true
@@ -65,12 +65,8 @@ Rails.application.configure do
   # routes, locales, etc. This feature depends on the listen gem.
   config.file_watcher = ActiveSupport::EventedFileUpdateChecker
 
-  config.after_initialize do
-    Bullet.enable = true
-    Bullet.rails_logger = true
-  end
-
-  
-  config.hosts <<  "f5699e13e175.ngrok.io"
+  # config.after_initialize do
+  #   Bullet.enable = true
+  #   Bullet.rails_logger = true
+  # end
 end
-

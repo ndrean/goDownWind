@@ -110,7 +110,6 @@ const DataTable = () => {
     }
 
     if (members.length > 0) {
-      console.log(members);
       members.forEach((member) => {
         for (const key in member) {
           formdata.append(`event[participants][][${key}]`, member[key]);

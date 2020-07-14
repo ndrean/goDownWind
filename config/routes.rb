@@ -1,5 +1,4 @@
 Rails.application.routes.draw do
-  
   devise_for :users,
     controllers: { omniauth_callbacks: 'users/omniauth_callbacks', sessions: 'users/sessions' }
 
@@ -11,8 +10,4 @@ Rails.application.routes.draw do
     end
   end
 
-  root to: 'events#index'
-
-  # get '*path', to: redirect('/'), constraints: lambda { |req| req.path.exclude? 'rails/active_storage' }
-  
-end
+  root to: 'events#index'end

@@ -31,7 +31,7 @@ class Api::V1::EventsController < ApplicationController
     @event = Event.new(event_params)
     @event.user = current_user
     if @event.photo.attached?
-      @event.url = @event.photo.service_url
+      @event.url = @event.photo.url
     end
     #respond_to do |format|
       if @event.save
@@ -55,22 +55,26 @@ class Api::V1::EventsController < ApplicationController
   # PATCH/PUT /events/:id
   def update
     @event = Event.find(params[:id])
-    
+    logger.debug "..................BEFORE : ..#{@event.to_json}"
+    logger.debug "..................BEFORE : ..#{event_params}"
     if event_params[:photo] || @event.url
-      logger.debug "..................BEFORE : ..#{@event.to_json}"
       @event.photo.purge
       @event.url = nil
-      ActiveStorage::Blob.create_and_upload!(
+    end
+
+    if @event.update(event_params)
+      if event_params[:photo]
+        ActiveStorage::Blob.create_and_upload!(
           io: File.open(event_params[:photo].tempfile),
           filename: event_params[:photo].original_filename,
           content_type:event_params[:photo].content_type
-        ) 
-    end
-    
-    if @event.update(event_params)
-      if event_params[:photo]
-        logger.debug "...............#{@event.photo.attached?}" 
-        @event.url = @event.photo.service_url
+        )
+        # @event.photo.attach(
+        #   io: File.open(event_params[:photo].tempfile),
+        #   filename: event_params[:photo].original_filename,
+        #   content_type:event_params[:photo].content_type
+        # )
+        @event.url = @event.photo.url
       end
       logger.debug "................AFTER :.. #{@event.to_json}"
       render json: {status: :ok}

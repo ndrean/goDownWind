@@ -7,12 +7,10 @@ async function fetchMethod({ method, index, body }) {
       method: method,
       body: body,
     });
+    console.log(method);
     if (query.ok) {
-      console.log(method);
       const query = await fetch(eventsEndPoint);
-      const response = await query.json();
-      console.log(response);
-      return response; //await query.json();
+      return await query.json();
     }
   } catch (err) {
     throw new Error(err);
