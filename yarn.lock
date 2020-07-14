@@ -846,7 +846,7 @@
     "@babel/plugin-transform-react-jsx-source" "^7.10.4"
     "@babel/plugin-transform-react-pure-annotations" "^7.10.4"
 
-"@babel/runtime@^7.4.2", "@babel/runtime@^7.4.4", "@babel/runtime@^7.4.5", "@babel/runtime@^7.5.5", "@babel/runtime@^7.6.3", "@babel/runtime@^7.7.2", "@babel/runtime@^7.8.4", "@babel/runtime@^7.8.7":
+"@babel/runtime@^7.1.2", "@babel/runtime@^7.4.2", "@babel/runtime@^7.4.4", "@babel/runtime@^7.4.5", "@babel/runtime@^7.5.5", "@babel/runtime@^7.6.3", "@babel/runtime@^7.7.2", "@babel/runtime@^7.8.4", "@babel/runtime@^7.8.7":
   version "7.10.4"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.10.4.tgz#a6724f1a6b8d2f6ea5236dbfe58c7d7ea9c5eb99"
   integrity sha512-UpTN5yUJr9b4EX2CnGNWIvER7Ab83ibv0pcvvHc4UOdrBI5jb8bj+32cCwPX6xu0mt2daFNjYhoi+X7beH0RSw==
@@ -1313,6 +1313,13 @@ acorn@^6.4.1:
   version "6.4.1"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-6.4.1.tgz#531e58ba3f51b9dacb9a6646ca4debf5b14ca474"
   integrity sha512-ZVA9k326Nwrj3Cj9jlh3wGFutC2ZornPNARZwsNYqQYgN0EsV2d53w5RN/co65Ohn4sUAUtb1rSUAOD6XN9idA==
+
+activestorage@^5.2.0:
+  version "5.2.4"
+  resolved "https://registry.yarnpkg.com/activestorage/-/activestorage-5.2.4.tgz#758650e01cbb2ce0e3e80e4b20a7641a021a5412"
+  integrity sha512-3HDU9nCt/wn4yisSdS7wd32YPZgKRfwq2BE4kA7yuAQYKn+/X2S1sM8nAtnfPQRZIWarabIvGjbVzJNsERAb5Q==
+  dependencies:
+    spark-md5 "^3.0.0"
 
 aggregate-error@^3.0.0:
   version "3.0.1"
@@ -6236,6 +6243,14 @@ raw-body@2.4.0:
     http-errors "1.7.2"
     iconv-lite "0.4.24"
     unpipe "1.0.0"
+
+react-activestorage-provider@^0.8.0:
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/react-activestorage-provider/-/react-activestorage-provider-0.8.0.tgz#4e64365dc089eb1149e975f90b223ed132b23012"
+  integrity sha512-7I0ujhezFBV6oYaP+U4WUOwn3/3l6NAv1eWOMghp0JUgPwrj0H23MkvaDAhkycVCCAQdKmJdOcraOl+bzD/Q8w==
+  dependencies:
+    "@babel/runtime" "^7.1.2"
+    activestorage "^5.2.0"
 
 react-bootstrap@^1.0.1:
   version "1.1.1"

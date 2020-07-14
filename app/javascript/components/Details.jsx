@@ -14,11 +14,6 @@ const Details = ({ event, onhandleNotifChange, onhandleSendNotif }) => {
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
-  // const handleChange = (e, event, idx) => {
-  //   event.participants[idx].notif = e.target.checked;
-  //   return event;
-  // };
-
   return (
     <>
       <Button variant="outline-primary" onClick={handleShow}>
@@ -34,27 +29,36 @@ const Details = ({ event, onhandleNotifChange, onhandleSendNotif }) => {
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          {/* <p>
+            If you don't find any buddies to invite people, edit the event and
+            select them!
+          </p> */}
           <hr />
-          {!event.participants
-            ? null
-            : event.participants.map((participant, idx) => (
-                <Container key={idx}>
-                  <Row key={participant.id}>
-                    <Col xs="8">{participant.email}</Col>
-                    <Col xs="4">
-                      <Form.Group controlId="formBasicCheckbox">
-                        <Form.Check
-                          name={idx}
-                          type="checkbox"
-                          label="Notif?"
-                          checked={participant.notif}
-                          onChange={onhandleNotifChange}
-                        />
-                      </Form.Group>
-                    </Col>
-                  </Row>
-                </Container>
-              ))}
+          {!event.participants ? (
+            <p>
+              If you don't find any buddies to invite people, edit the event and
+              select them!
+            </p>
+          ) : (
+            event.participants.map((participant, idx) => (
+              <Container key={idx}>
+                <Row key={participant.id}>
+                  <Col xs="8">{participant.email}</Col>
+                  <Col xs="4">
+                    <Form.Group controlId="formBasicCheckbox">
+                      <Form.Check
+                        name={idx}
+                        type="checkbox"
+                        label="Notif?"
+                        checked={JSON.parse(participant.notif)}
+                        onChange={onhandleNotifChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+              </Container>
+            ))
+          )}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="primary" onClick={onhandleSendNotif}>

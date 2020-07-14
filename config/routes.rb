@@ -6,12 +6,13 @@ Rails.application.routes.draw do
   
   namespace :api, defaults: { format: :json } do
     namespace :v1 do
-      resources :events, only: :index
+      resources :events, only: [:index, :create, :update, :destroy, :show]
       resources :users, only: :index
     end
   end
 
   root to: 'events#index'
-  #resources :events
+
+  # get '*path', to: redirect('/'), constraints: lambda { |req| req.path.exclude? 'rails/active_storage' }
   
 end

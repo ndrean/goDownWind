@@ -23,25 +23,27 @@ const DataTable = () => {
     start: "",
     end: "",
   });
+  const [picture, setPicture] = React.useState("");
+  const [preview, setPreview] = React.useState("");
+
   const [participants, setParticipants] = React.useState([]);
-  // const [notify, setNotify] = React.useState(false);
-  //const [values, setValues] = React.useState({ a: 1, b: 2 });
 
   // api/v1/events/{indexEdit} to set PATCH or POST if not exist
   const [indexEdit, setIndexEdit] = React.useState(null);
-
   // Modal opened/closed
   const [show, setShow] = React.useState(false);
-  const handleShow = () => setShow(true);
+
+  const handleShow = () => {
+    setShow(true);
+  };
+
   const handleClose = () => {
     // close Modal & reset form
     setShow(false);
     setItinary({ date: "", start: "", end: "" });
     setParticipants([]);
-  };
-
-  const increase = (key) => () => {
-    setValues((values) => ({ ...values, [key]: values[key] + 1 }));
+    setPreview("");
+    setIndexEdit("");
   };
 
   // upload db
@@ -55,9 +57,6 @@ const DataTable = () => {
       .then((res) => res.json())
       .then((data) => setUsers(data))
       .catch((err) => console.log(err));
-
-    //const c = increase("b");
-    //console.log(c);
   }, []);
 
   // remove row from table
@@ -78,7 +77,7 @@ const DataTable = () => {
           throw new Error("unauthorized");
         }
       } catch (err) {
-        console.log("Error", err);
+        alert("Not authorized");
       }
     }
   };
@@ -87,86 +86,157 @@ const DataTable = () => {
   // the backend should send a mail on POST to every participant
   async function handleFormSubmit(e) {
     e.preventDefault();
-    const members = participants.map((p) => {
-      return { email: p, notif: false };
-    });
-    console.log(members);
-    const body = JSON.stringify({
-      event: {
-        itinary_attributes: {
-          date: itinary.date,
-          end: itinary.end,
-          start: itinary.start,
-        },
-        participants: members,
-      },
-    });
+    // adding boolean  field for notified? to participant
+    let members = [];
+    if (participants) {
+      members = participants.map((p) => {
+        if (!p.hasOwnProperty("email")) {
+          return { email: p, notif: false };
+        } else {
+          return p;
+        }
+      });
+    }
+
+    const formdata = new FormData();
+    /* => object formdata to pass to the backend
+    {event: {
+      itinary_attributes:{date:xxx, start:xxx, end:xxx},
+      participants:[{email:xxx,notif:bool}, {...}],
+      photo : "http://res.cloudinary.com/xxx"
+    */
+    for (const key in itinary) {
+      formdata.append(`event[itinary_attributes][${key}]`, itinary[key]);
+    }
+
+    if (members.length > 0) {
+      console.log(members);
+      members.forEach((member) => {
+        for (const key in member) {
+          formdata.append(`event[participants][][${key}]`, member[key]);
+        }
+      });
+    } else {
+      formdata.append(`event[participants][]`, []);
+    }
+
+    if (picture) {
+      formdata.append("event[photo]", picture);
+    }
 
     if (!indexEdit) {
-      setEvents(await fetchMethod({ method: "POST", index: "", body: body }));
-    } else if (indexEdit) {
       setEvents(
-        await fetchMethod({ method: "PATCH", index: indexEdit, body: body })
+        await fetchMethod({
+          method: "POST",
+          index: "",
+          body: formdata,
+        })
       );
     }
-    setIndexEdit(null); // reset index
+    if (indexEdit) {
+      setEvents(
+        await fetchMethod({
+          method: "PATCH",
+          index: indexEdit,
+          body: formdata,
+        })
+      );
+    }
+    //reset
+    setIndexEdit(null);
+    setPreview("");
     handleClose(); // close Modal
   }
 
   // Edit event
-  async function handleEdit(e, event) {
-    e.preventDefault();
+  async function handleEdit(event) {
     setIndexEdit(event.id); // get /api/v1/events/ID
+
     const data = events.find((ev) => ev.id === event.id);
     setItinary({
       date: new Date(data.itinary.date).toISOString().slice(0, 10),
       start: data.itinary.start,
       end: data.itinary.end,
     });
-    const kiters = data.participants.map((p) => {
-      return { email: p.email, notif: false };
-    });
-    setParticipants(kiters);
+
+    setParticipants(data.participants || []);
+
+    if (event.url) {
+      setPreview(event.url);
+    }
+
+    // if (data.participants) {
+    //   console.log(data.participants);
+    //   // const kiters = data.participants.map((p) => {
+    //   //   return { email: p.email, notif: JSON.parse(p.notif) }; // === "true" ? true : false }; // false => p.notif
+    //   // });
+    //   setParticipants(
+    //     data.participants.map((p) => {
+    //       return { email: p.email, notif: JSON.parse(p.notif) };
+    //     })
+    //   );
+    //setParticipants(kiters);
+    // } else setParticipants([]);
     handleShow(); // open modal-form
   }
 
   function handleSelectChange(selectedOptions) {
     if (selectedOptions) {
       const kiters = [];
-      selectedOptions.forEach((selOpt) => kiters.push(selOpt.value));
+      selectedOptions.forEach((selOpt) => {
+        const participant = participants.find((p) => p.email === selOpt.value);
+        if (participant) {
+          return kiters.push({ email: selOpt.value, notif: participant.notif });
+        } else {
+          return kiters.push({ email: selOpt.value, notif: false });
+        }
+      });
       setParticipants(kiters);
-    }
+    } else setParticipants([]);
   }
 
+  // update dynamically key/value for date, start, end of itinary
   function handleItinaryChange(e) {
-    setItinary({ ...itinary, [e.target.name]: e.target.value });
+    setItinary({
+      ...itinary,
+      [e.target.name]: e.target.value,
+    });
+  }
+
+  // get photo
+  async function handlePhoto(e) {
+    if (e.target.files[0]) {
+      setPreview(URL.createObjectURL(e.target.files[0]));
+      setPicture(e.target.files[0]);
+    }
   }
 
   // update state & db on notification checkbox per event per participant
   function handleNotif(e, event) {
     event.participants[e.target.name].notif = e.target.checked;
-    let items = [...events];
-    let idx = items.findIndex((item) => item.id === event.id);
+    //setParticipants(event.participants);
+    const items = [...events];
+    const idx = items.findIndex((item) => item.id === event.id);
     items[idx] = event;
     setEvents(items);
-    const body = JSON.stringify({
-      event: {
-        itinary_attributes: {
-          date: event.itinary.date,
-          end: event.itinary.end,
-          start: event.itinary.start,
-        },
-        participants: event.participants,
-      },
+
+    const formdata = new FormData();
+    for (const key in event.itinary) {
+      formdata.append(`event[itinary_attributes][${key}]`, event.itinary[key]);
+    }
+    event.participants.forEach((member) => {
+      for (const key in member) {
+        formdata.append(`event[participants][][${key}]`, member[key]);
+      }
     });
-    fetchMethod({ method: "PATCH", index: event.id, body: body });
+    fetchMethod({ method: "PATCH", index: event.id, body: formdata });
   }
 
   // push notification to selected participants on button
   function handleSend(event) {
     if (event.participants.find((p) => p.notif)) {
       const listPush = event.participants
-        .filter((p) => p.notif)
+        .filter((p) => JSON.parse(p.notif))
         .map((p) => p.email);
       if (
         confirm(
@@ -174,7 +244,7 @@ const DataTable = () => {
         )
       ) {
         handleClose();
-        console.log("PUSH PUSH");
+        console.log("PUSH PUSH", listPush);
       }
     } else {
       alert("No one to invite!");
@@ -199,9 +269,11 @@ const DataTable = () => {
               date={itinary.date}
               start={itinary.start}
               end={itinary.end}
+              preview={preview}
               onFormSubmit={handleFormSubmit}
               onhandleItinaryChange={handleItinaryChange}
               onSelectChange={handleSelectChange}
+              onhandlePhoto={handlePhoto}
             />
           </AddEventModal>
         </Row>
@@ -225,8 +297,9 @@ const DataTable = () => {
                 <TableRow
                   key={event.id}
                   event={event}
+                  //notify={notify}
                   onhandleRemove={(e) => handleRemove(e, event)}
-                  onhandleEdit={(e) => handleEdit(e, event)}
+                  onhandleEdit={() => handleEdit(event)}
                   onhandleNotif={(e) => handleNotif(e, event)}
                   onhandleSend={() => handleSend(event)}
                 />
@@ -238,7 +311,3 @@ const DataTable = () => {
 };
 
 export { DataTable };
-
-{
-  /* https://stackoverflow.com/questions/39914455/react-validatedomnesting-text-cannot-appear-as-a-child-of-tr/39915085 */
-}

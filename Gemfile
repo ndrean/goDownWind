@@ -39,10 +39,11 @@ gem 'simple_form'
 # gem 'kaminari' # for latter?
 
 # gem 'fast_jsonapi' # tested
-
+gem 'cloudinary'
 gem 'sidekiq'
 gem 'sidekiq-failures', '~> 1.0'
 
+gem 'gibbon'
 group :development, :test do  
   gem 'letter_opener'
   gem 'pry-byebug'

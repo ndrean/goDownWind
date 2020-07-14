@@ -5,19 +5,18 @@ async function fetchMethod({ method, index, body }) {
   try {
     const query = await fetchWithToken(eventsEndPoint + index, {
       method: method,
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
       body: body,
     });
     if (query.ok) {
       console.log(method);
       const query = await fetch(eventsEndPoint);
-      return await query.json();
+      const response = await query.json();
+      console.log(response);
+      return response; //await query.json();
     }
   } catch (err) {
-    console.log(err);
+    throw new Error(err);
+    //console.log(err);
   }
 }
 

@@ -1,9 +1,14 @@
 import React from "react";
+
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import Image from "react-bootstrap/Image";
+
 import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
 const AddEventForm = (props) => {
   const {
     users,
@@ -11,9 +16,11 @@ const AddEventForm = (props) => {
     date,
     start,
     end,
+    preview,
     onFormSubmit,
     onhandleItinaryChange,
     onSelectChange,
+    onhandlePhoto,
   } = props;
 
   // setup SELECT
@@ -28,13 +35,14 @@ const AddEventForm = (props) => {
 
   return (
     <>
-      <Form onSubmit={onFormSubmit}>
+      <Form onSubmit={onFormSubmit} id="eventForm">
         <Form.Group controlId="ControlDate">
           <Form.Label>Date event</Form.Label>
           <Form.Control
             type="date"
             value={date}
             name="date"
+            required
             onChange={onhandleItinaryChange}
           />
         </Form.Group>
@@ -44,6 +52,7 @@ const AddEventForm = (props) => {
           <Form.Control
             type="text"
             value={start}
+            required
             name="start"
             onChange={onhandleItinaryChange}
           />
@@ -54,11 +63,13 @@ const AddEventForm = (props) => {
           <Form.Control
             type="text"
             value={end}
+            required
             name="end"
             onChange={onhandleItinaryChange}
           />
         </Form.Group>
         <Form.Group controlId="ControlKiters">
+          <Form.Label>Invite participants</Form.Label>
           <Select
             defaultValue={defaultOpt}
             isMulti
@@ -70,23 +81,17 @@ const AddEventForm = (props) => {
           />
         </Form.Group>
 
-        {/* <Form.Group controlId="ControlKiters">
-          <Form.Label>Invite kiters</Form.Label>
-          <Form.Control
-            as="select"
-            multiple
-            onChange={onSelectChange}
-            defaultValue={participants}
-          >
-            {users.map((user) => {
-              return (
-                <option key={user.email} value={user.email}>
-                  {user.email}
-                </option>
-              );
-            })}
-          </Form.Control>
-        </Form.Group> */}
+        <Form.Group>
+          <Form.Label>
+            <FontAwesomeIcon icon="camera" size="2x" />
+          </Form.Label>
+          <Form.File
+            type="file"
+            name="photo"
+            onChange={onhandlePhoto}
+            accept="image/*"
+          />
+        </Form.Group>
 
         <Form.Group controlId="ControlComment">
           <Form.Label>Comments</Form.Label>
@@ -103,6 +108,22 @@ const AddEventForm = (props) => {
           </Button>
         </Row>
       </Form>
+
+      <br />
+
+      <Row className="justify-content-md-center">
+        <Col xs={6} md="auto">
+          {preview && (
+            <Image
+              src={preview}
+              alt={start}
+              style={{ width: "250" }}
+              fluid
+              loading="lazy"
+            />
+          )}
+        </Col>
+      </Row>
     </>
   );
 };
