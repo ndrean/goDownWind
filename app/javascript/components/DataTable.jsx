@@ -178,18 +178,6 @@ const DataTable = () => {
       setPreview(event.url);
     }
 
-    // if (data.participants) {
-    //   console.log(data.participants);
-    //   // const kiters = data.participants.map((p) => {
-    //   //   return { email: p.email, notif: JSON.parse(p.notif) }; // === "true" ? true : false }; // false => p.notif
-    //   // });
-    //   setParticipants(
-    //     data.participants.map((p) => {
-    //       return { email: p.email, notif: JSON.parse(p.notif) };
-    //     })
-    //   );
-    //setParticipants(kiters);
-    // } else setParticipants([]);
     handleShow(); // open modal-form
   }
 
@@ -227,7 +215,7 @@ const DataTable = () => {
   // update state & db on notification checkbox per event per participant
   function handleNotif(e, event) {
     event.participants[e.target.name].notif = e.target.checked;
-    //setParticipants(event.participants);
+    // find & replace
     const items = [...events];
     const idx = items.findIndex((item) => item.id === event.id);
     items[idx] = event;

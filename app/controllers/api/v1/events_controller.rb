@@ -52,13 +52,12 @@ class Api::V1::EventsController < ApplicationController
     event = Event.find(params[:id])
     if event_params[:photo] && event.url
       event.photo.purge
-      logger.debug ".....................ATTACHED? #{event.photo.attached?}"
     end
     if event.update(event_params)
       if event_params[:photo]
         event.update(url: event.photo.url)
       end
-      logger.debug "................AFTER :.. #{event.to_json}"
+      #logger.debug "................AFTER :.. #{event.to_json}"
       render json: event, status: :ok
     else
       render json: {errors: event.errors.full_messages},
