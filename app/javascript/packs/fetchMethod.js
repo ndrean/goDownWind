@@ -9,7 +9,8 @@ async function fetchMethod({ method, index, body }) {
     });
     console.log(method);
     if (query.ok) {
-      const query = await fetch(eventsEndPoint);
+      // const headers = { "Content-Type": "application/json", ...headers };
+      const query = await fetch(eventsEndPoint); //, { headers });
       return await query.json();
     }
   } catch (err) {

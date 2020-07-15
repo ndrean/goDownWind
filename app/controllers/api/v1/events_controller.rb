@@ -28,61 +28,42 @@ class Api::V1::EventsController < ApplicationController
 
   # POST
   def create
-    @event = Event.new(event_params)
-    @event.user = current_user
-    if @event.photo.attached?
-      @event.url = @event.photo.url
+    event = Event.new(event_params)
+    event.user = current_user
+    if event.photo.attached?
+      event.url = event.photo.url
     end
-    #respond_to do |format|
-      if @event.save
-        if @event.participants
-          # @event.participants.each do |participant|
-          #   EventMailer.invitation(participant[:email],@event).deliver_now 
-          # # SendInvitationJob.perform_later(
-          # #   params.permit(:participantID, :eventID) 
-          # end
-        end
-        logger.debug "..............#{@event.to_json}"
-        #format.json { render json: { status: :created} }
-        render json: { status: :created }
-      else
-        #format.json { render json: @event.errors.full_messages, status: :unprocessable_entity }
-        render json:  @event.errors.full_messages, status: :unprocessable_entity 
+    if event.save
+      if event.participants
+        # @event.participants.each do |participant|
+        #   EventMailer.invitation(participant[:email],@event).deliver_now 
+        # # SendInvitationJob.perform_later(
+        # #   params.permit(:participantID, :eventID) 
+        # end
       end
-    #end
+      render json: { status: :created }
+    else
+      render json:  event.errors.full_messages, status: :unprocessable_entity 
+    end
   end
 
   # PATCH/PUT /events/:id
   def update
-    @event = Event.find(params[:id])
-    logger.debug "..................BEFORE : ..#{@event.to_json}"
-    logger.debug "..................BEFORE : ..#{event_params}"
-    if event_params[:photo] || @event.url
-      @event.photo.purge
-      @event.url = nil
+    event = Event.find(params[:id])
+    if event_params[:photo] && event.url
+      event.photo.purge
+      logger.debug ".....................ATTACHED? #{event.photo.attached?}"
     end
-
-    if @event.update(event_params)
+    if event.update(event_params)
       if event_params[:photo]
-        ActiveStorage::Blob.create_and_upload!(
-          io: File.open(event_params[:photo].tempfile),
-          filename: event_params[:photo].original_filename,
-          content_type:event_params[:photo].content_type
-        )
-        # @event.photo.attach(
-        #   io: File.open(event_params[:photo].tempfile),
-        #   filename: event_params[:photo].original_filename,
-        #   content_type:event_params[:photo].content_type
-        # )
-        @event.url = @event.photo.url
+        event.update(url: event.photo.url)
       end
-      logger.debug "................AFTER :.. #{@event.to_json}"
-      render json: {status: :ok}
+      logger.debug "................AFTER :.. #{event.to_json}"
+      render json: event, status: :ok
     else
-      render json: {errors: @event.errors.full_messages},
+      render json: {errors: event.errors.full_messages},
         status: :unprocessable_entity, notice:"not authorized"
     end
-    
   end
 
   

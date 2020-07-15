@@ -43,6 +43,7 @@ const DataTable = () => {
     setItinary({ date: "", start: "", end: "" });
     setParticipants([]);
     setPreview("");
+    setPicture("");
     setIndexEdit("");
   };
 
@@ -58,6 +59,10 @@ const DataTable = () => {
       .then((data) => setUsers(data))
       .catch((err) => console.log(err));
   }, []);
+
+  if (!events || !users) {
+    return <p>Waiting...</p>;
+  }
 
   // remove row from table
   const handleRemove = async (e, event) => {
@@ -124,22 +129,31 @@ const DataTable = () => {
     }
 
     if (!indexEdit) {
-      setEvents(
-        await fetchMethod({
-          method: "POST",
-          index: "",
-          body: formdata,
-        })
-      );
+      try {
+        setEvents(
+          await fetchMethod({
+            method: "POST",
+            index: "",
+            body: formdata,
+          })
+        );
+      } catch (err) {
+        console.log(err);
+      }
     }
+
     if (indexEdit) {
-      setEvents(
-        await fetchMethod({
-          method: "PATCH",
-          index: indexEdit,
-          body: formdata,
-        })
-      );
+      try {
+        setEvents(
+          await fetchMethod({
+            method: "PATCH",
+            index: indexEdit,
+            body: formdata,
+          })
+        );
+      } catch (err) {
+        console.log(err);
+      }
     }
     //reset
     setIndexEdit(null);
