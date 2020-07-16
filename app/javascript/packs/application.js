@@ -5,7 +5,7 @@
 
 require("@rails/ujs").start();
 require("turbolinks").start();
-require("@rails/activestorage").start();
+//require("@rails/activestorage").start();
 require("channels");
 
 //import * as ActiveStorage from 'activestorage'; // for .js.erb and direct upload client > cloud
