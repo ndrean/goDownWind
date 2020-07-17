@@ -1,20 +1,18 @@
 class EventMailer < ApplicationMailer
 
-  CONTACT_EMAIL = "nevendrean@yahoo.fr"
+  #CONTACT_EMAIL = "nevendrean@yahoo.fr"
 
-  def welcome(user)
-    @user = user
-    mail(to: @user.email, subject: "Welcome to GoDownWind.online")
-  end
+  # def welcome(user)
+  #   @user = user
+  #   mail(to: @user.email, subject: "Welcome to GoDownWind.online")
+  # end
 
-  def invitation(participant, event)
-    #@participant = User.find(participant)
-    #@event = Event.find(event)
-    @participant = participant
-    @event = event
 
-    #mail(to: "CONTACT_EMAIL", subject: `Invitation to a downwind event`)
-    mail(to: 'nevendrean@yahoo.fr', subject: "Invitation to a downwind event")
+  def invitation(p_email, event_ID)
+    @p_email = p_email
+    @event = Event.find(event_ID)
+    return if @event.nil? || p_email.nil?
+    mail(to: @p_email,  subject: "Invitation to a downwind event")
   end
 
 end

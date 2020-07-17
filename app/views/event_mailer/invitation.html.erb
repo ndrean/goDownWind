@@ -1,6 +1,6 @@
 <h1>Event invitation</h1>
 
-<p> Hi <%= @participant %> </p>
+<p> Hi <%= @p_email %> </p>
 <p>
   You are invited to join a downwind event the  <%= @event.itinary.date %>:</p>
   <ul>
@@ -11,8 +11,8 @@
   The participants are:
 <ul>
   <% if @event.participants %>
-    <% @event.participants.each do |p| %>
-      <li><%= p %></li>
+    <% @event.participants.each do |participant| %>
+      <li><%= participant['email'] %></li>
     <% end %>
   <% end %>
 </ul>

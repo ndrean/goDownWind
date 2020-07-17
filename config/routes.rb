@@ -10,4 +10,10 @@ Rails.application.routes.draw do
     end
   end
 
-  root to: 'events#index'end
+  root to: 'events#index'
+
+  mount Sidekiq::Web => '/sidekiq'
+    
+
+end
+

@@ -1,10 +1,8 @@
 class SendInvitationJob < ApplicationJob
   queue_as :default
 
-  def perform(participantID, eventID)
-    #participant = User.find(participantID)
-    #event = Event.find(eventID)
-    EventMailer.invitation(participantID, eventID).deliver
+  def perform(pemail, eventID)
+    EventMailer.invitation(pemail, eventID).deliver
   end
 
 end

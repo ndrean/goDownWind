@@ -30,20 +30,23 @@ class Api::V1::EventsController < ApplicationController
   def create
     event = Event.new(event_params)
     event.user = current_user
+    # get the Cloudinary url if a photo is passed in the form
     if event.photo.attached?
       event.url = event.photo.url
     end
+
     if event.save
+      # if any participant passed in the form, send them async email
       if event.participants
-        # @event.participants.each do |participant|
-        #   EventMailer.invitation(participant[:email],@event).deliver_now 
-        # # SendInvitationJob.perform_later(
-        # #   params.permit(:participantID, :eventID) 
-        # end
+        event.participants.each do |participant|
+          EventMailer.invitation(participant['email'], event.id)
+            .deliver_later 
+        end
       end
-      render json: { status: :created }
+
+      render json: event, status: :created
     else
-      render json:  event.errors.full_messages, status: :unprocessable_entity 
+      render json: event.errors.full_messages, status: :unprocessable_entity 
     end
   end
 

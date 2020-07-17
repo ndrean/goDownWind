@@ -1,6 +1,6 @@
-class EmailInterceptor
-  def self.delivering_email(message)
-    message.subject = "#{message.to} #{message.subject}"
-    message.to = [ 'nevendrean@yahoo.fr' ]
-  end
-end
+# class EmailInterceptor
+#   def self.delivering_email(message)
+#     message.subject = "#{message.to} #{message.subject}"
+#     message.to = [ 'nevendrean@yahoo.fr' ]
+#   end
+# end
