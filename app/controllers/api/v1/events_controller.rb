@@ -36,11 +36,12 @@ class Api::V1::EventsController < ApplicationController
     end
 
     if event.save
-      # if any participant passed in the form, send them async email
+      # if any participant passed in the form, send async email
       if event.participants
         event.participants.each do |participant|
+          # event.participant=[{email:xx,notif:xx},..] , 'jsonb' format => participant['email']
           EventMailer.invitation(participant['email'], event.id)
-            .deliver_later 
+            .deliver_later
         end
       end
 
@@ -54,13 +55,12 @@ class Api::V1::EventsController < ApplicationController
   def update
     event = Event.find(params[:id])
     if event_params[:photo] && event.url
-      event.photo.purge
+      event.photo.purge_later
     end
     if event.update(event_params)
       if event_params[:photo]
         event.update(url: event.photo.url)
       end
-      #logger.debug "................AFTER :.. #{event.to_json}"
       render json: event, status: :ok
     else
       render json: {errors: event.errors.full_messages},
@@ -85,6 +85,9 @@ class Api::V1::EventsController < ApplicationController
     end
   end
 
+  def search
+
+  end
 
   private
     def set_event
