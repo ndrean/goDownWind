@@ -9,7 +9,7 @@ const TableRow = ({
   onhandleRemove,
   onhandleEdit,
   onhandleNotif,
-  onhandleSend,
+  onhandlePush,
   //notify,
 }) => {
   return (
@@ -21,8 +21,7 @@ const TableRow = ({
         <Details
           event={event}
           onhandleNotifChange={onhandleNotif}
-          onhandleSendNotif={onhandleSend}
-          //notify={notify}
+          onhandlePushNotif={onhandlePush}
         />
       </td>
       <td>

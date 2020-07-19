@@ -8,7 +8,7 @@ import Form from "react-bootstrap/Form";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-const Details = ({ event, onhandleNotifChange, onhandleSendNotif }) => {
+const Details = ({ event, onhandleNotifChange, onhandlePushNotif }) => {
   const [show, setShow] = React.useState(false);
 
   const handleClose = () => setShow(false);
@@ -61,7 +61,7 @@ const Details = ({ event, onhandleNotifChange, onhandleSendNotif }) => {
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" onClick={onhandleSendNotif}>
+          <Button variant="primary" onClick={onhandlePushNotif}>
             <FontAwesomeIcon icon="share" /> Send notifications
           </Button>
           <Button variant="secondary" onClick={handleClose}>

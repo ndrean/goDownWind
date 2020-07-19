@@ -6,9 +6,11 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Image from "react-bootstrap/Image";
 
+import { Image as CLImage, CloudinaryContext } from "cloudinary-react";
 import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
+import { cloudName } from "../helpers/endpoints";
 const AddEventForm = (props) => {
   const {
     users,
@@ -17,10 +19,12 @@ const AddEventForm = (props) => {
     start,
     end,
     preview,
+    fotoCL,
     onFormSubmit,
     onhandleItinaryChange,
     onSelectChange,
     onhandlePhoto,
+    onhandleSendCL,
   } = props;
 
   // setup SELECT
@@ -93,6 +97,18 @@ const AddEventForm = (props) => {
           />
         </Form.Group>
 
+        <Form.Group>
+          <Form.Label>
+            <FontAwesomeIcon icon="camera" size="2x" />
+          </Form.Label>
+          <Form.File
+            type="file"
+            name="pic"
+            onChange={onhandleSendCL}
+            accept="image/*"
+          />
+        </Form.Group>
+
         <Form.Group controlId="ControlComment">
           <Form.Label>Comments</Form.Label>
           <Form.Control as="textarea" rows="3" />
@@ -117,10 +133,23 @@ const AddEventForm = (props) => {
             <Image
               src={preview}
               alt={start}
-              style={{ width: "250" }}
+              // style={{ width: "250" }}
               fluid
+              width="100"
               loading="lazy"
             />
+          )}
+        </Col>
+      </Row>
+
+      <Row className="justify-content-md-center">
+        <Col xs={6} md="auto">
+          {fotoCL && (
+            <CloudinaryContext cloudName={cloudName}>
+              <div>
+                <CLImage publicId={fotoCL.public_id} width="100" crop="scale" />
+              </div>
+            </CloudinaryContext>
           )}
         </Col>
       </Row>

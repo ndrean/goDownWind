@@ -17,8 +17,8 @@ class Api::V1::EventsController < ApplicationController
 
   #api/v1/events/:id => ok
   def show
-    @event = Event.find(params[:id])
-    render json: @event.to_json(
+    event = Event.find(params[:id])
+    render json: event.to_json(
       include: [
         user: {only: :email},
         itinary: {only: [:date, :start, :end]},
@@ -44,7 +44,7 @@ class Api::V1::EventsController < ApplicationController
             .deliver_later
         end
       end
-
+      logger.debug "..............#{event.user}"
       render json: event, status: :created
     else
       render json: event.errors.full_messages, status: :unprocessable_entity 
@@ -54,6 +54,8 @@ class Api::V1::EventsController < ApplicationController
   # PATCH/PUT /events/:id
   def update
     event = Event.find(params[:id])
+    render json: {status: 401} if event.user != current_user
+    
     if event_params[:photo] && event.url
       event.photo.purge_later
     end
@@ -70,45 +72,52 @@ class Api::V1::EventsController < ApplicationController
 
   
   def destroy
-    @event = Event.find(params[:id])
-    if authorized?
-      @event.itinary.destroy
-      if @event.photo.attached? 
-        @event.photo.purge_later
+    event = Event.find(params[:id])
+    render json: {status: 401} if event.user != current_user
+
+    # async Active_Job
+    
+      if event.photo.attached?
+        PurgeCl.perform_later(event.photo.key)
+        event.photo.purge_later
       end
-      @event.destroy
-      respond_to do |format|
-        format.json  { render json: {status: :ok} }
-      end 
-    else
-      format.json { render json: {errors: @event.errors.full_messages,   status: :unprocessable_entity } } # status: 422
-    end
+      #   result = Cloudinary::Search
+      #     .expression(filename=event.photo.key)
+      #     .execute
+      #   if result.any?
+      #       Cloudinary::Uploader.destroy(result['resources'][0]['public_id'])
+      #   end
+      #   event.photo.purge_later
+      # end
+    #async Active_Job
+    
+      if event.publicID
+        RemoveDirectLink.perform_later(event.publicID)
+      #   Cloudinary::Uploader.destroy(event.publicID)
+      end
+
+      event.itinary.destroy
+      event.destroy
+      render json: {status: :ok}
   end
 
   def search
-
   end
 
   private
-    def set_event
-      @event = Event.find(params[:id])
-    end
-
     def event_params
       #logger.debug "................#{params.require(:event).fetch(:participants,[]).map(&:keys.to_sym).flatten.uniq}"
-      params.require(:event).permit( :user, :photo,  itinary_attributes: [:date, :start, :end], participants: [:email, :notif, :id]) #:participants => sp_keys)#, [:email, :id])
+      params.require(:event).permit( :user, :photo, :directCLUrl, :publicID,  itinary_attributes: [:date, :start, :end], participants: [:email, :notif, :id]) #:participants => sp_keys)#, [:email, :id])
     end
 
-    def authorized?
-      current_user == @event.user
+    def authorized?(event)
+      current_user == event.user
     end
 
 
     def handle_unauthorized
       unless authorized?
-        respond_to do |format|
-          format.json { render :unauthorized, status: 401 }
-        end
+        render :unauthorized, status: 401
       end
     end
 

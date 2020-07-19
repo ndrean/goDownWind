@@ -1,5 +1,5 @@
 import fetchWithToken from "./fetchWithToken";
-import { eventsEndPoint } from "../components/endpoints";
+import { eventsEndPoint } from "./endpoints";
 
 async function fetchMethod({ method, index, body }) {
   try {

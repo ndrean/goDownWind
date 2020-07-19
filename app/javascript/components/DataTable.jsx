@@ -10,9 +10,9 @@ import AddEventModal from "./AddEventModal";
 import AddEventForm from "./AddEventForm";
 
 // utilitaries for fetch (Rails token with @rails/ujs)
-import fetchWithToken from "../packs/fetchWithToken"; // token for POST, PATCH, DELETE
-import fetchMethod from "../packs/fetchMethod"; // returns data after PATCH or POST depending upon endpoint
-import { eventsEndPoint, usersEndPoint } from "./endpoints"; // const endpoints
+import fetchWithToken from "../helpers/fetchWithToken"; // token for POST, PATCH, DELETE
+import fetchMethod from "../helpers/fetchMethod"; // returns data after PATCH or POST depending upon endpoint
+import { eventsEndPoint, usersEndPoint, cloudName } from "../helpers/endpoints"; // const endpoints
 
 const DataTable = () => {
   // from db: events= [event:{user, itinary, participants}]
@@ -24,6 +24,7 @@ const DataTable = () => {
     end: "",
   });
   const [picture, setPicture] = React.useState("");
+  const [fotoCL, setFotoCL] = React.useState(""); // test
   const [preview, setPreview] = React.useState("");
 
   const [participants, setParticipants] = React.useState([]);
@@ -45,6 +46,7 @@ const DataTable = () => {
     setPreview("");
     setPicture("");
     setIndexEdit("");
+    setFotoCL("");
   };
 
   // upload db
@@ -102,18 +104,17 @@ const DataTable = () => {
         }
       });
     }
-
-    const formdata = new FormData();
     /* => object formdata to pass to the backend
     {event: {
       itinary_attributes:{date:xxx, start:xxx, end:xxx},
       participants:[{email:xxx,notif:bool}, {...}],
-      photo : "http://res.cloudinary.com/xxx"
+      photo : "http://res.cloudinary.com/xxx",
+      directClURL, publicID
     */
+    const formdata = new FormData();
     for (const key in itinary) {
       formdata.append(`event[itinary_attributes][${key}]`, itinary[key]);
     }
-
     if (members.length > 0) {
       members.forEach((member) => {
         for (const key in member) {
@@ -130,6 +131,10 @@ const DataTable = () => {
 
     if (!indexEdit) {
       try {
+        if (fotoCL) {
+          formdata.append("event[directCLUrl]", await fotoCL.secure_url);
+          formdata.append("event[publicID]", await fotoCL.public_id);
+        }
         setEvents(
           await fetchMethod({
             method: "POST",
@@ -144,6 +149,10 @@ const DataTable = () => {
 
     if (indexEdit) {
       try {
+        if (fotoCL) {
+          formdata.append("event[directCLUrl]", await fotoCL.secure_url);
+          formdata.append("event[publicID]", await fotoCL.public_id);
+        }
         setEvents(
           await fetchMethod({
             method: "PATCH",
@@ -176,6 +185,9 @@ const DataTable = () => {
 
     if (event.url) {
       setPreview(event.url);
+    }
+    if (event.directCLUrl) {
+      setFotoCL({ public_id: event.publicID });
     }
 
     handleShow(); // open modal-form
@@ -212,6 +224,24 @@ const DataTable = () => {
     }
   }
 
+  async function handleSendCL(e) {
+    if (e.target.files[0]) {
+      document.cookie = "cross-site-cookie=bar; SameSite=None; Secure";
+      const formdata = new FormData();
+      formdata.append("file", e.target.files[0]);
+      formdata.append("upload_preset", "ml_default");
+      fetch(`https://api.cloudinary.com/v1_1/${cloudName}/upload`, {
+        method: "POST",
+        body: formdata,
+      })
+        .then((res) => res.json())
+        .then((res) => setFotoCL(res))
+        .catch((err) => {
+          throw new Error(err);
+        });
+    }
+  }
+
   // update state & db on notification checkbox per event per participant
   function handleNotif(e, event) {
     event.participants[e.target.name].notif = e.target.checked;
@@ -234,7 +264,7 @@ const DataTable = () => {
   }
 
   // push notification to selected participants on button
-  function handleSend(event) {
+  function handlePush(event) {
     if (event.participants.find((p) => p.notif)) {
       const listPush = event.participants
         .filter((p) => JSON.parse(p.notif))
@@ -271,10 +301,12 @@ const DataTable = () => {
               start={itinary.start}
               end={itinary.end}
               preview={preview}
+              fotoCL={fotoCL}
               onFormSubmit={handleFormSubmit}
               onhandleItinaryChange={handleItinaryChange}
               onSelectChange={handleSelectChange}
               onhandlePhoto={handlePhoto}
+              onhandleSendCL={handleSendCL}
             />
           </AddEventModal>
         </Row>
@@ -302,7 +334,7 @@ const DataTable = () => {
                   onhandleRemove={(e) => handleRemove(e, event)}
                   onhandleEdit={() => handleEdit(event)}
                   onhandleNotif={(e) => handleNotif(e, event)}
-                  onhandleSend={() => handleSend(event)}
+                  onhandlePush={() => handlePush(event)}
                 />
               ))}
         </tbody>
