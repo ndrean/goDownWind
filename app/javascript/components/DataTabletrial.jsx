@@ -29,7 +29,6 @@ const DataTable = () => {
   const [preview, setPreview] = React.useState("");
   const [changed, setChanged] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
-
   const [participants, setParticipants] = React.useState([]);
 
   // api/v1/events/{indexEdit} to set PATCH or POST if not exist
@@ -94,7 +93,7 @@ const DataTable = () => {
   };
 
   // POST or PATCH the modal form:
-  // the backend sends a mail on POST to every participant
+  // the backend should send a mail on POST to every participant
   async function handleFormSubmit(e) {
     e.preventDefault();
     // adding boolean  field for notified? to participant
@@ -137,16 +136,26 @@ const DataTable = () => {
       try {
         if (changed) {
           console.log("new", fotoCL);
-          formdata.append("event[directCLUrl]", await fotoCL.secure_url);
-          formdata.append("event[publicID]", await fotoCL.public_id);
+          const p1 = new Promise((resolve) => {
+            formdata.append("event[directCLUrl]", fotoCL.secure_url);
+            return resolve(formdata);
+          });
+
+          const p2 = new Promise((resolve) => {
+            formdata.append("event[publicID]", fotoCL.public_id);
+            return resolve(formdata);
+          });
+
+          await Promise.all([p1, p2]).then(() => {
+            setEvents(
+              fetchMethod({
+                method: "POST",
+                index: "",
+                body: formdata,
+              })
+            );
+          });
         }
-        setEvents(
-          await fetchMethod({
-            method: "POST",
-            index: "",
-            body: formdata,
-          })
-        );
       } catch (err) {
         console.log(err);
       }

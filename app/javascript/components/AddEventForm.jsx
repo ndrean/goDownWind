@@ -19,6 +19,7 @@ const AddEventForm = (props) => {
     start,
     end,
     preview,
+    loading,
     fotoCL,
     onFormSubmit,
     onhandleItinaryChange,
@@ -119,6 +120,7 @@ const AddEventForm = (props) => {
             variant="outline-primary"
             type="submit"
             style={{ fontSize: "24px" }}
+            disabled={loading}
           >
             <FontAwesomeIcon icon="paper-plane" /> Submit
           </Button>
