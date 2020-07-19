@@ -16,8 +16,9 @@ import { eventsEndPoint, usersEndPoint, cloudName } from "../helpers/endpoints";
 
 const DataTable = () => {
   // from db: events= [event:{user, itinary, participants}]
-  const [events, setEvents] = React.useState([]); // fetch from db
   const [users, setUsers] = React.useState([]); // fetch from db
+  const [events, setEvents] = React.useState([]); // fetch from db
+
   const [itinary, setItinary] = React.useState({
     date: "",
     start: "",
@@ -26,7 +27,7 @@ const DataTable = () => {
   const [picture, setPicture] = React.useState("");
   const [fotoCL, setFotoCL] = React.useState(""); // test
   const [preview, setPreview] = React.useState("");
-
+  const [changed, setChanged] = React.useState(false);
   const [participants, setParticipants] = React.useState([]);
 
   // api/v1/events/{indexEdit} to set PATCH or POST if not exist
@@ -47,6 +48,7 @@ const DataTable = () => {
     setPicture("");
     setIndexEdit("");
     setFotoCL("");
+    setChanged(false);
   };
 
   // upload db
@@ -131,7 +133,8 @@ const DataTable = () => {
 
     if (!indexEdit) {
       try {
-        if (fotoCL) {
+        if (changed) {
+          console.log("new", fotoCL);
           formdata.append("event[directCLUrl]", await fotoCL.secure_url);
           formdata.append("event[publicID]", await fotoCL.public_id);
         }
@@ -149,7 +152,8 @@ const DataTable = () => {
 
     if (indexEdit) {
       try {
-        if (fotoCL) {
+        if (changed) {
+          console.log("modif", fotoCL);
           formdata.append("event[directCLUrl]", await fotoCL.secure_url);
           formdata.append("event[publicID]", await fotoCL.public_id);
         }
@@ -187,7 +191,10 @@ const DataTable = () => {
       setPreview(event.url);
     }
     if (event.directCLUrl) {
-      setFotoCL({ public_id: event.publicID });
+      setFotoCL({
+        public_id: event.publicID,
+        directCLUrl: event.directCLUrl,
+      });
     }
 
     handleShow(); // open modal-form
@@ -199,7 +206,10 @@ const DataTable = () => {
       selectedOptions.forEach((selOpt) => {
         const participant = participants.find((p) => p.email === selOpt.value);
         if (participant) {
-          return kiters.push({ email: selOpt.value, notif: participant.notif });
+          return kiters.push({
+            email: selOpt.value,
+            notif: participant.notif,
+          });
         } else {
           return kiters.push({ email: selOpt.value, notif: false });
         }
@@ -226,6 +236,7 @@ const DataTable = () => {
 
   async function handleSendCL(e) {
     if (e.target.files[0]) {
+      setChanged(true);
       document.cookie = "cross-site-cookie=bar; SameSite=None; Secure";
       const formdata = new FormData();
       formdata.append("file", e.target.files[0]);
@@ -235,7 +246,10 @@ const DataTable = () => {
         body: formdata,
       })
         .then((res) => res.json())
-        .then((res) => setFotoCL(res))
+        .then((res) => {
+          console.log("sendCL", res);
+          setFotoCL(res);
+        })
         .catch((err) => {
           throw new Error(err);
         });

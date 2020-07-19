@@ -44,7 +44,6 @@ class Api::V1::EventsController < ApplicationController
             .deliver_later
         end
       end
-      logger.debug "..............#{event.user}"
       render json: event, status: :created
     else
       render json: event.errors.full_messages, status: :unprocessable_entity 
@@ -55,14 +54,25 @@ class Api::V1::EventsController < ApplicationController
   def update
     event = Event.find(params[:id])
     render json: {status: 401} if event.user != current_user
-    
+
+    # async purge only for Active Storage since direct upload data is in params
     if event_params[:photo] && event.url
+      PurgeCl.perform_later(event.photo.key)
       event.photo.purge_later
     end
+
+    # if we update direct link, then first remove from CL
+    if event_params[:directCLUrl] 
+        RemoveDirectLink.perform_later(event.publicID)
+    end
+
     if event.update(event_params)
+      # if a new picture is saved to Active Storage, update link
+      # if a direct link to CL is done, the links will be in the params
       if event_params[:photo]
         event.update(url: event.photo.url)
       end
+      
       render json: event, status: :ok
     else
       render json: {errors: event.errors.full_messages},
@@ -76,21 +86,12 @@ class Api::V1::EventsController < ApplicationController
     render json: {status: 401} if event.user != current_user
 
     # async Active_Job
-    
       if event.photo.attached?
         PurgeCl.perform_later(event.photo.key)
         event.photo.purge_later
       end
-      #   result = Cloudinary::Search
-      #     .expression(filename=event.photo.key)
-      #     .execute
-      #   if result.any?
-      #       Cloudinary::Uploader.destroy(result['resources'][0]['public_id'])
-      #   end
-      #   event.photo.purge_later
-      # end
+
     #async Active_Job
-    
       if event.publicID
         RemoveDirectLink.perform_later(event.publicID)
       #   Cloudinary::Uploader.destroy(event.publicID)
