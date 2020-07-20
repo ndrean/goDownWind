@@ -44,7 +44,7 @@ class Api::V1::EventsController < ApplicationController
             .deliver_later
         end
       end
-      render json: event, status: :created
+      render json: { status: 201 }
     else
       render json: event.errors.full_messages, status: :unprocessable_entity 
     end
@@ -53,16 +53,20 @@ class Api::V1::EventsController < ApplicationController
   # PATCH/PUT /events/:id
   def update
     event = Event.find(params[:id])
-    render json: {status: 401} if event.user != current_user
+    if event.user != current_user
+      return render json: {status: 401}
+    end
 
     # async purge only for Active Storage since direct upload data is in params
     if event_params[:photo] && event.url
+      logger.debug "...............#{event.photo.key}"
       PurgeCl.perform_later(event.photo.key)
       event.photo.purge_later
     end
 
-    # if we update direct link, then first remove from CL
-    if event_params[:directCLUrl] 
+    # if we update direct link, then first remove from CL if one exists
+    logger.debug "................#{event_params[:directCLUrl] && event.directCLUrl}"
+    if event_params[:directCLUrl] && event.directCLUrl
         RemoveDirectLink.perform_later(event.publicID)
     end
 
@@ -73,20 +77,24 @@ class Api::V1::EventsController < ApplicationController
         event.update(url: event.photo.url)
       end
       
-      render json: event, status: :ok
+      render json: { status: 200 }
     else
       render json: {errors: event.errors.full_messages},
-        status: :unprocessable_entity, notice:"not authorized"
+        status: :unprocessable_entity
     end
   end
 
   
   def destroy
-    event = Event.find(params[:id])
-    render json: {status: 401} if event.user != current_user
+    event = Event.find(params[:id])   
+    
+    if event.user != current_user
+      return render json: { status: 401 }
+    end
 
     # async Active_Job
       if event.photo.attached?
+        logger.debug "................#{event.photo.key}"
         PurgeCl.perform_later(event.photo.key)
         event.photo.purge_later
       end
@@ -99,7 +107,7 @@ class Api::V1::EventsController < ApplicationController
 
       event.itinary.destroy
       event.destroy
-      render json: {status: :ok}
+      render json: {status: 200}
   end
 
   def search
@@ -111,19 +119,13 @@ class Api::V1::EventsController < ApplicationController
       params.require(:event).permit( :user, :photo, :directCLUrl, :publicID,  itinary_attributes: [:date, :start, :end], participants: [:email, :notif, :id]) #:participants => sp_keys)#, [:email, :id])
     end
 
-    def authorized?(event)
-      current_user == event.user
-    end
-
-
-    def handle_unauthorized
-      unless authorized?
+    def handle_unauthorized(current, user)
+      unless current == user
         render :unauthorized, status: 401
       end
     end
 
-
-    def mail_params
-      params.require(:event).permit(user:[:email], itinary:[:date, :start,:end])
-    end
+    # def mail_params
+    #   params.require(:event).permit(user:[:email], itinary:[:date, :start,:end])
+    # end
 end

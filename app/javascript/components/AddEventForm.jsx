@@ -10,7 +10,7 @@ import { Image as CLImage, CloudinaryContext } from "cloudinary-react";
 import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import { cloudName } from "../helpers/endpoints";
+// import { cloudName } from "../helpers/endpoints";
 const AddEventForm = (props) => {
   const {
     users,
@@ -18,14 +18,14 @@ const AddEventForm = (props) => {
     date,
     start,
     end,
-    preview,
+    previewAS,
     loading,
-    fotoCL,
+    previewCL,
     onFormSubmit,
     onhandleItinaryChange,
     onSelectChange,
-    onhandlePhoto,
-    onhandleSendCL,
+    onhandlePhotoAS,
+    onhandlePictureCL,
   } = props;
 
   // setup SELECT
@@ -93,7 +93,7 @@ const AddEventForm = (props) => {
           <Form.File
             type="file"
             name="photo"
-            onChange={onhandlePhoto}
+            onChange={onhandlePhotoAS}
             accept="image/*"
           />
         </Form.Group>
@@ -105,7 +105,7 @@ const AddEventForm = (props) => {
           <Form.File
             type="file"
             name="pic"
-            onChange={onhandleSendCL}
+            onChange={onhandlePictureCL}
             accept="image/*"
           />
         </Form.Group>
@@ -131,10 +131,10 @@ const AddEventForm = (props) => {
 
       <Row className="justify-content-md-center">
         <Col xs={6} md="auto">
-          {preview && (
+          {previewAS && (
             <Image
-              src={preview}
-              alt={start}
+              src={previewAS}
+              alt={"AS"}
               // style={{ width: "250" }}
               fluid
               width="100"
@@ -146,13 +146,23 @@ const AddEventForm = (props) => {
 
       <Row className="justify-content-md-center">
         <Col xs={6} md="auto">
-          {fotoCL && (
+          {previewCL && (
+            <Image
+              src={previewCL}
+              alt={"CL"}
+              // style={{ width: "250" }}
+              fluid
+              width="100"
+              loading="lazy"
+            />
+          )}
+          {/* {fotoCL && (
             <CloudinaryContext cloudName={cloudName}>
               <div>
                 <CLImage publicId={fotoCL.public_id} width="100" crop="scale" />
               </div>
             </CloudinaryContext>
-          )}
+          )} */}
         </Col>
       </Row>
     </>

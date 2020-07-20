@@ -1,8 +1,11 @@
 import React from "react";
+
 import Table from "react-bootstrap/Table";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Button from "react-bootstrap/Button";
+import Spinner from "react-bootstrap/Spinner";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import TableRow from "./TableRow";
@@ -11,7 +14,8 @@ import AddEventForm from "./AddEventForm";
 
 // utilitaries for fetch (Rails token with @rails/ujs)
 import fetchWithToken from "../helpers/fetchWithToken"; // token for POST, PATCH, DELETE
-import fetchMethod from "../helpers/fetchMethod"; // returns data after PATCH or POST depending upon endpoint
+import fetchAll from "../helpers/fetchAll"; // returns data after PATCH or POST depending upon endpoint
+import returnUnauthorized from "../helpers/returnUnauthorized";
 import { eventsEndPoint, usersEndPoint, cloudName } from "../helpers/endpoints"; // const endpoints
 
 const DataTable = () => {
@@ -29,6 +33,8 @@ const DataTable = () => {
   const [preview, setPreview] = React.useState("");
   const [changed, setChanged] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
+  const [file, setFile] = React.useState("");
+
   const [participants, setParticipants] = React.useState([]);
 
   // api/v1/events/{indexEdit} to set PATCH or POST if not exist
@@ -41,7 +47,6 @@ const DataTable = () => {
   };
 
   const handleClose = () => {
-    // close Modal & reset form
     setShow(false);
     setItinary({ date: "", start: "", end: "" });
     setParticipants([]);
@@ -52,22 +57,37 @@ const DataTable = () => {
     setChanged(false);
   };
 
+  React.useEffect(() => {
+    if (!events || !users) {
+      return (
+        <Spinner animation="border" role="status">
+          <span className="sr-only">Waiting for data...</span>
+        </Spinner>
+      );
+    }
+  }, [loading]);
+
   // upload db
   React.useEffect(() => {
-    fetch(eventsEndPoint)
-      .then((res) => res.json())
-      .then((data) => setEvents(data))
-      .catch((err) => console.log(err));
-
-    fetch(usersEndPoint)
-      .then((res) => res.json())
-      .then((data) => setUsers(data))
-      .catch((err) => console.log(err));
+    setLoading(true);
+    async function fetchData() {
+      try {
+        const responseEvents = await fetch(eventsEndPoint);
+        const responseUsers = await fetch(usersEndPoint);
+        const dataEvents = await responseEvents.json();
+        const dataUsers = await responseUsers.json();
+        if (dataEvents && dataUsers) {
+          setEvents(dataEvents);
+          setUsers(dataUsers);
+        }
+      } catch (err) {
+        throw new Error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData().catch((err) => console.log(err));
   }, []);
-
-  if (!events || !users) {
-    return <p>Waiting...</p>;
-  }
 
   // remove row from table
   const handleRemove = async (e, event) => {
@@ -81,21 +101,30 @@ const DataTable = () => {
             Accept: "application/json",
           },
         }); // then new updated rows
-        if (query.ok) {
+        const response = await query.json();
+        if (response.status === 200) {
           setEvents((prev) => [...prev].filter((ev) => ev.id !== event.id));
         } else {
-          throw new Error("unauthorized");
+          returnUnauthorized();
         }
       } catch (err) {
-        alert("Not authorized");
+        console.log(err);
       }
     }
   };
 
   // POST or PATCH the modal form:
-  // the backend should send a mail on POST to every participant
+  /* => object formdata to pass to the backend
+    {event: {
+      itinary_attributes:{date:xxx, start:xxx, end:xxx},
+      participants:[{email:xxx,notif:bool}, {...}],
+      photo : "http://res.cloudinary.com/xxx",
+      directClURL, publicID
+    */
+
   async function handleFormSubmit(e) {
     e.preventDefault();
+
     // adding boolean  field for notified? to participant
     let members = [];
     if (participants) {
@@ -107,13 +136,7 @@ const DataTable = () => {
         }
       });
     }
-    /* => object formdata to pass to the backend
-    {event: {
-      itinary_attributes:{date:xxx, start:xxx, end:xxx},
-      participants:[{email:xxx,notif:bool}, {...}],
-      photo : "http://res.cloudinary.com/xxx",
-      directClURL, publicID
-    */
+
     const formdata = new FormData();
     for (const key in itinary) {
       formdata.append(`event[itinary_attributes][${key}]`, itinary[key]);
@@ -132,57 +155,35 @@ const DataTable = () => {
       formdata.append("event[photo]", picture);
     }
 
+    if (changed) {
+      formdata.append("event[directCLUrl]", await fotoCL.secure_url);
+      formdata.append("event[publicID]", await fotoCL.public_id);
+    }
+
     if (!indexEdit) {
-      try {
-        if (changed) {
-          console.log("new", fotoCL);
-          const p1 = new Promise((resolve) => {
-            formdata.append("event[directCLUrl]", fotoCL.secure_url);
-            return resolve(formdata);
-          });
-
-          const p2 = new Promise((resolve) => {
-            formdata.append("event[publicID]", fotoCL.public_id);
-            return resolve(formdata);
-          });
-
-          await Promise.all([p1, p2]).then(() => {
-            setEvents(
-              fetchMethod({
-                method: "POST",
-                index: "",
-                body: formdata,
-              })
-            );
-          });
-        }
-      } catch (err) {
-        console.log(err);
+      const result = await fetchAll({
+        method: "POST",
+        index: "",
+        body: formdata,
+        status: 201,
+      });
+      if (result) {
+        setEvents(result);
       }
     }
 
     if (indexEdit) {
-      try {
-        if (changed) {
-          console.log("modif", fotoCL);
-          formdata.append("event[directCLUrl]", await fotoCL.secure_url);
-          formdata.append("event[publicID]", await fotoCL.public_id);
-        }
-        setEvents(
-          await fetchMethod({
-            method: "PATCH",
-            index: indexEdit,
-            body: formdata,
-          })
-        );
-      } catch (err) {
-        console.log(err);
+      const result = await fetchAll({
+        method: "PATCH",
+        index: indexEdit,
+        body: formdata,
+        status: 200,
+      });
+      if (result) {
+        setEvents(result);
       }
     }
-    //reset
-    setIndexEdit(null);
-    setPreview("");
-    handleClose(); // close Modal
+    handleClose(); // reset
   }
 
   // Edit event
@@ -249,7 +250,7 @@ const DataTable = () => {
     if (e.target.files[0]) {
       setChanged(true);
       setLoading(true);
-      document.cookie = "cross-site-cookie=bar; SameSite=None; Secure";
+      //document.cookie = "SameSite=None; Secure";
       const formdata = new FormData();
       formdata.append("file", e.target.files[0]);
       formdata.append("upload_preset", "ml_default");
@@ -258,10 +259,7 @@ const DataTable = () => {
         body: formdata,
       })
         .then((res) => res.json())
-        .then((res) => {
-          console.log("sendCL", res);
-          setFotoCL(res);
-        })
+        .then((res) => setFotoCL(res))
         .catch((err) => {
           throw new Error(err);
         })
@@ -287,7 +285,7 @@ const DataTable = () => {
         formdata.append(`event[participants][][${key}]`, member[key]);
       }
     });
-    fetchMethod({ method: "PATCH", index: event.id, body: formdata });
+    fetchAll({ method: "PATCH", index: event.id, body: formdata, status: 200 });
   }
 
   // push notification to selected participants on button

@@ -1,8 +1,11 @@
 import React from "react";
+
 import Table from "react-bootstrap/Table";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Button from "react-bootstrap/Button";
+import Spinner from "react-bootstrap/Spinner";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import TableRow from "./TableRow";
@@ -11,7 +14,8 @@ import AddEventForm from "./AddEventForm";
 
 // utilitaries for fetch (Rails token with @rails/ujs)
 import fetchWithToken from "../helpers/fetchWithToken"; // token for POST, PATCH, DELETE
-import fetchMethod from "../helpers/fetchMethod"; // returns data after PATCH or POST depending upon endpoint
+import fetchAll from "../helpers/fetchAll"; // returns data after PATCH or POST depending upon endpoint
+import returnUnauthorized from "../helpers/returnUnauthorized";
 import { eventsEndPoint, usersEndPoint, cloudName } from "../helpers/endpoints"; // const endpoints
 
 const DataTable = () => {
@@ -24,9 +28,10 @@ const DataTable = () => {
     start: "",
     end: "",
   });
-  const [picture, setPicture] = React.useState("");
-  const [fotoCL, setFotoCL] = React.useState(""); // test
-  const [preview, setPreview] = React.useState("");
+  const [fileAS, setFileAS] = React.useState("");
+  const [fileCL, setFileCL] = React.useState("");
+  const [previewCL, setPreviewCL] = React.useState(""); // test
+  const [previewAS, setPreviewAS] = React.useState("");
   const [changed, setChanged] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
 
@@ -42,33 +47,48 @@ const DataTable = () => {
   };
 
   const handleClose = () => {
-    // close Modal & reset form
     setShow(false);
     setItinary({ date: "", start: "", end: "" });
     setParticipants([]);
-    setPreview("");
-    setPicture("");
+    setPreviewAS("");
+    setPreviewCL("");
+    setFileAS("");
     setIndexEdit("");
-    setFotoCL("");
+
     setChanged(false);
   };
 
+  // React.useEffect(() => {
+  //   if (!events || !users) {
+  //     return (
+  //       <Spinner animation="border" role="status">
+  //         <span className="sr-only">Waiting for data...</span>
+  //       </Spinner>
+  //     );
+  //   }
+  // }, [loading]);
+
   // upload db
   React.useEffect(() => {
-    fetch(eventsEndPoint)
-      .then((res) => res.json())
-      .then((data) => setEvents(data))
-      .catch((err) => console.log(err));
-
-    fetch(usersEndPoint)
-      .then((res) => res.json())
-      .then((data) => setUsers(data))
-      .catch((err) => console.log(err));
+    setLoading(true);
+    async function fetchData() {
+      try {
+        const responseEvents = await fetch(eventsEndPoint);
+        const responseUsers = await fetch(usersEndPoint);
+        const dataEvents = await responseEvents.json();
+        const dataUsers = await responseUsers.json();
+        if (dataEvents && dataUsers) {
+          setEvents(dataEvents);
+          setUsers(dataUsers);
+        }
+      } catch (err) {
+        throw new Error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData().catch((err) => console.log(err));
   }, []);
-
-  if (!events || !users) {
-    return <p>Waiting...</p>;
-  }
 
   // remove row from table
   const handleRemove = async (e, event) => {
@@ -82,21 +102,30 @@ const DataTable = () => {
             Accept: "application/json",
           },
         }); // then new updated rows
-        if (query.ok) {
+        const response = await query.json();
+        if (response.status === 200) {
           setEvents((prev) => [...prev].filter((ev) => ev.id !== event.id));
         } else {
-          throw new Error("unauthorized");
+          returnUnauthorized();
         }
       } catch (err) {
-        alert("Not authorized");
+        console.log(err);
       }
     }
   };
 
   // POST or PATCH the modal form:
-  // the backend sends a mail on POST to every participant
+  /* => object formdata to pass to the backend
+    {event: {
+      itinary_attributes:{date:xxx, start:xxx, end:xxx},
+      participants:[{email:xxx,notif:bool}, {...}],
+      photo : "http://res.cloudinary.com/xxx",
+      directClURL, publicID
+    */
+
   async function handleFormSubmit(e) {
     e.preventDefault();
+
     // adding boolean  field for notified? to participant
     let members = [];
     if (participants) {
@@ -108,97 +137,96 @@ const DataTable = () => {
         }
       });
     }
-    /* => object formdata to pass to the backend
-    {event: {
-      itinary_attributes:{date:xxx, start:xxx, end:xxx},
-      participants:[{email:xxx,notif:bool}, {...}],
-      photo : "http://res.cloudinary.com/xxx",
-      directClURL, publicID
-    */
-    const formdata = new FormData();
-    for (const key in itinary) {
-      formdata.append(`event[itinary_attributes][${key}]`, itinary[key]);
-    }
-    if (members.length > 0) {
-      members.forEach((member) => {
-        for (const key in member) {
-          formdata.append(`event[participants][][${key}]`, member[key]);
-        }
-      });
-    } else {
-      formdata.append(`event[participants][]`, []);
-    }
-
-    if (picture) {
-      formdata.append("event[photo]", picture);
+    // first promise to append non async data to the FormData
+    function init(fd) {
+      for (const key in itinary) {
+        fd.append(`event[itinary_attributes][${key}]`, itinary[key]);
+      }
+      if (members.length > 0) {
+        members.forEach((member) => {
+          for (const key in member) {
+            fd.append(`event[participants][][${key}]`, member[key]);
+          }
+        });
+      } else {
+        fd.append(`event[participants][]`, []);
+      }
+      if (fileAS) {
+        fd.append("event[photo]", fileAS);
+      }
+      return Promise.resolve(fd);
     }
 
-    if (!indexEdit) {
-      try {
-        if (changed) {
-          console.log("new", fotoCL);
-          formdata.append("event[directCLUrl]", await fotoCL.secure_url);
-          formdata.append("event[publicID]", await fotoCL.public_id);
-        }
-        setEvents(
-          await fetchMethod({
+    // second promise that Post photo to CL and receives link back and append FormData
+    async function upLoadToCL(ffd) {
+      if (changed) {
+        // boolean: changed <=> new file input for CL
+        const newfd = new FormData();
+        newfd.append("file", fileCL);
+        newfd.append("upload_preset", "ml_default");
+        return fetch(`https://api.cloudinary.com/v1_1/${cloudName}/upload`, {
+          method: "POST",
+          body: newfd,
+        })
+          .then((res) => res.json())
+          .then((resCL) => {
+            //setPreviewCL(resCL);
+            ffd.append("event[directCLUrl]", resCL.secure_url);
+            ffd.append("event[publicID]", resCL.public_id);
+            return ffd;
+          })
+          .catch((err) => {
+            throw new Error(err);
+          });
+      } else {
+        return Promise.resolve(ffd);
+      }
+    }
+    // chaining of promises
+    init(new FormData())
+      .then((res) => upLoadToCL(res))
+      .then((data) => {
+        if (!indexEdit) {
+          fetchAll({
             method: "POST",
             index: "",
-            body: formdata,
-          })
-        );
-      } catch (err) {
-        console.log(err);
-      }
-    }
-
-    if (indexEdit) {
-      try {
-        if (changed) {
-          console.log("modif", fotoCL);
-          formdata.append("event[directCLUrl]", await fotoCL.secure_url);
-          formdata.append("event[publicID]", await fotoCL.public_id);
-        }
-        setEvents(
-          await fetchMethod({
+            body: data,
+            status: 201,
+          }).then((result) => {
+            if (result) {
+              setEvents(result);
+            }
+          });
+        } else if (indexEdit) {
+          fetchAll({
             method: "PATCH",
             index: indexEdit,
-            body: formdata,
-          })
-        );
-      } catch (err) {
-        console.log(err);
-      }
-    }
-    //reset
-    setIndexEdit(null);
-    setPreview("");
-    handleClose(); // close Modal
+            body: data,
+            status: 200,
+          }).then((result) => {
+            setEvents(result);
+          });
+        }
+      });
+    handleClose(); // reset
   }
 
   // Edit event
   async function handleEdit(event) {
     setIndexEdit(event.id); // get /api/v1/events/ID
-
     const data = events.find((ev) => ev.id === event.id);
     setItinary({
       date: new Date(data.itinary.date).toISOString().slice(0, 10),
       start: data.itinary.start,
       end: data.itinary.end,
     });
-
     setParticipants(data.participants || []);
-
     if (event.url) {
-      setPreview(event.url);
+      setPreviewAS(event.url);
     }
     if (event.directCLUrl) {
-      setFotoCL({
-        public_id: event.publicID,
-        directCLUrl: event.directCLUrl,
-      });
+      setPreviewCL(event.directCLUrl);
     }
-
     handleShow(); // open modal-form
   }
 
@@ -228,35 +256,19 @@ const DataTable = () => {
     });
   }
 
-  // get photo
-  async function handlePhoto(e) {
+  // get photoAS
+  async function handlePhotoAS(e) {
     if (e.target.files[0]) {
-      setPreview(URL.createObjectURL(e.target.files[0]));
-      setPicture(e.target.files[0]);
+      setPreviewAS(URL.createObjectURL(e.target.files[0]));
+      setFileAS(e.target.files[0]);
     }
   }
 
-  async function handleSendCL(e) {
+  async function handlePictureCL(e) {
     if (e.target.files[0]) {
+      setPreviewCL(URL.createObjectURL(e.target.files[0]));
       setChanged(true);
-      setLoading(true);
-      document.cookie = "cross-site-cookie=bar; SameSite=None; Secure";
-      const formdata = new FormData();
-      formdata.append("file", e.target.files[0]);
-      formdata.append("upload_preset", "ml_default");
-      fetch(`https://api.cloudinary.com/v1_1/${cloudName}/upload`, {
-        method: "POST",
-        body: formdata,
-      })
-        .then((res) => res.json())
-        .then((res) => {
-          console.log("sendCL", res);
-          setFotoCL(res);
-        })
-        .catch((err) => {
-          throw new Error(err);
-        })
-        .finally(() => setLoading(false));
+      setFileCL(e.target.files[0]);
     }
   }
 
@@ -278,7 +290,7 @@ const DataTable = () => {
         formdata.append(`event[participants][][${key}]`, member[key]);
       }
     });
-    fetchMethod({ method: "PATCH", index: event.id, body: formdata });
+    fetchAll({ method: "PATCH", index: event.id, body: formdata, status: 200 });
   }
 
   // push notification to selected participants on button
@@ -318,14 +330,14 @@ const DataTable = () => {
               date={itinary.date}
               start={itinary.start}
               end={itinary.end}
-              preview={preview}
-              fotoCL={fotoCL}
+              previewAS={previewAS}
+              previewCL={previewCL}
               loading={loading}
               onFormSubmit={handleFormSubmit}
               onhandleItinaryChange={handleItinaryChange}
               onSelectChange={handleSelectChange}
-              onhandlePhoto={handlePhoto}
-              onhandleSendCL={handleSendCL}
+              onhandlePhotoAS={handlePhotoAS}
+              onhandlePictureCL={handlePictureCL}
             />
           </AddEventModal>
         </Row>
